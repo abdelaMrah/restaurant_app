@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/routers.tsx","./src/theme.tsx","./src/vite-env.d.ts","./src/layouts/mobilenav.tsx","./src/layouts/sidebar.tsx","./src/pages/commandes/commandes.tsx","./src/pages/commandes/pages/commandelist.tsx","./src/pages/commandes/pages/nouvel_commande.tsx","./src/pages/dashboard/dasboard.tsx","./src/utils/utils.ts"],"version":"5.6.3"}
