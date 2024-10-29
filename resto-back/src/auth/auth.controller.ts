@@ -10,12 +10,16 @@ import { getUser } from './decorators/get-user.decorator';
 import { User } from '@prisma/client';
 import { Role } from './decorators/Roles';
 import { Roles } from './entities/role.enum';
+import { RoleService } from 'src/user/role/role.service';
+
 @Injectable()
 @Controller('auth')
 export class AuthController {
-    constructor(private readonly auth:AuthService){}
+    constructor(private readonly auth:AuthService,private readonly roleService:RoleService){}
+   
     @UseGuards(RolesGuard,AuthGuard('jwt'))
     @Role(Roles.ADMIN)
+    @isPublic()
     @Post('signUp')
     async signUp(@Body() signUpDto:SignUpDto,){
         const user=await this.auth.signUp(signUpDto);
@@ -25,8 +29,7 @@ export class AuthController {
     @Post('signIn')
     async sighIn(@Body() signInDto:SignInDto,@Res() response:Response){
         const {token,user}=await this.auth.shignIn(signInDto);
-        console.log({token})
-        response.cookie('auth-token',{access_token:token.access_token,refresh_token:token.refresh_token},{httpOnly:true})
+         response.cookie('auth-token',{access_token:token.access_token,refresh_token:token.refresh_token},{httpOnly:true})
         return response.send({user})
     }
     
@@ -41,7 +44,15 @@ export class AuthController {
     @UseGuards(RolesGuard,AuthGuard('jwt'))
     @Role(Roles.ADMIN,Roles.USER)
     @Get('session')
-    getSession(@getUser() user:User){
-        return user
+   async getSession(@getUser() user:User){
+        delete user.password;
+        const role=await this.roleService.getRoleId(user.roleId);
+        return {
+            ...user,
+            role:{
+                id:role.id,
+                name:role.name
+            }
+        }
     }
 }

@@ -12,7 +12,7 @@ export default function Dashboard() {
   };
 
   return (
-    <Box p={4} sx={{ backgroundColor: '#f5f5f5' }}>
+    <Box p={4} >
       <Typography variant="h4" fontWeight="bold" gutterBottom color="primary">
         Tableau de bord du restaurant
       </Typography>

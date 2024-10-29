@@ -13,15 +13,28 @@ export class PermissionService {
     }
    async getPermissionByRole(roleId:number){
         const permission =await this.prisma.permission.findMany({
-            where:{
-                rolePermissions:{
-                    every:{
-                        roleId
-                    }
+           include:{
+            rolePermissions:{
+                where:{
+                    roleId
+                },
+                select:{
+                    permission:true
                 }
             }
+           }
         })
         return permission;
+    }
+    async getPermissionByRoleId(roleId:number){
+        return this.prisma.rolePermission.findMany({
+            where:{
+                roleId
+            },
+            include:{
+                permission:true
+            }
+        })
     }
     async createPermission(createPermissionDto:createPermissionDto){
        return await this.prisma.permission.create({data:createPermissionDto})

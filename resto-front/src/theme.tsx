@@ -132,29 +132,29 @@ export const themeSettings =(mode:PaletteMode):ThemeOptions=>{
             MuiButton:{
                 styleOverrides: {
                   root: {
-                    borderRadius: '30px', // Bouton arrondi
-                    padding: '10px 20px', // Padding personnalisé
-                    fontWeight: 'bold', // Texte en gras
-                    textTransform: 'none', // Empêche la mise en majuscule automatique du texte
+                    borderRadius: '30px',
+                    padding: '10px 20px',
+                    fontWeight: 'bold', 
+                    textTransform: 'none',
                     transition: 'background-color 0.3s ease, transform 0.3s ease',
                     '&:hover': {
-                      backgroundColor: '#FFD700', // Utilise la couleur secondaire lors du survol
-                      transform: 'scale(1.01)', // Effet d'agrandissement au survol
+                    
+                      transform: 'scale(1.01)',
                     },
                     '&:active': {
-                      transform: 'scale(0.99)', // Réduction de l'échelle lors du clic
+                      transform: 'scale(0.99)',
                     },
                     '&:disabled': {
-                      backgroundColor: '#e0e0e0', // Couleur de fond pour un bouton désactivé
-                      color: '#9e9e9e', // Couleur du texte pour un bouton désactivé
+                      backgroundColor: '#e0e0e0',
+                      color: '#9e9e9e', 
                     },
                   },
                   contained: {
-                    boxShadow: 'none', // Supprime l'ombre par défaut
+                    boxShadow: 'none', 
                     backgroundColor:palettes(mode).primary.light,
                     color:palettes(mode).secondary.main,
                     '&:hover': {
-                    //   boxShadow: `0 1px 4px ${palettes(mode).secondary.light}`,
+                    
                       backgroundColor:palettes(mode).primary.main,
                       color:palettes(mode).secondary.light,
                     },
@@ -220,20 +220,20 @@ export const themeSettings =(mode:PaletteMode):ThemeOptions=>{
    }else{
     return {
         primary: {
-            main: '##E69583FF', 
-            light: '#ed6c02', 
-            dark: '#8A4C3EFF',
-            contrastText: '#DB6708FF',
+            main: '##C327AB', 
+            light: '#E147CAFF', 
+            dark: '#9A1285FF',
+            contrastText: '#C327AB',
         },
         secondary: {
-            main: '#9FE802FF',
-            light: '#A4E024FF',
-            dark: '#8AC804FF', 
-            contrastText: '#ffffff',
+            main: '#E1E099',
+            light: '#EAE9B7FF',
+            dark: '#C6C578FF', 
+            contrastText: '#E1E099',
         },
         background: {
-            default: '#141414', 
-            paper: '#282828', 
+            default: '#070739', 
+            paper: '#030325FF', 
         },
         text: {
             primary: '#ffffff',

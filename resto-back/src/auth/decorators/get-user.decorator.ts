@@ -4,8 +4,7 @@ import { ExecutionContext,  createParamDecorator } from "@nestjs/common";
     (_data: unknown, ctx: ExecutionContext) => {
       const request:Request = ctx.switchToHttp().getRequest();
       //@ts-ignore
-        console.log(request.user)
-        //@ts-ignore
+         //@ts-ignore
         return request.user;
     },
   );

@@ -14,6 +14,6 @@ import { PermissionService } from './permission/permission.service';
     UserService,
     PermissionService
     ],
-    exports :[UserService]
+    exports :[UserService,RoleService,PermissionService]
 })
 export class UserModule {}

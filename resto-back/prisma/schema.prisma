@@ -1,99 +1,70 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
-
-generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-
- 
-// model User {
-//   id Int @id @default(autoincrement())
-//   userName String @unique
-//   email String @unique
-//   password String
-//   photoUrl String?
-//   orders Order[]
-//   role Role @default(user)
-  // createAt DateTime @default(now())
-  // updatedAt DateTime?
-// }
-//   enum Role {
-//     admin
-//     user
-//   }
-// model Dish {
-//   id          Int       @id @default(autoincrement())
-//   name        String
-//   description String?
-//   price       Decimal
-//   category    Category?   @relation(fields: [categoryId], references: [id])
-//   categoryId  Int?
-//   orderItems  OrderItem[] 
-//   createAt DateTime? @default(now())
-//   updatedAt DateTime?
-// }
-// model Category {
-//   id    Int    @id @default(autoincrement())
-//   name  String
-//   dishes Dish[]
-//   createAt DateTime? @default(now())
-//   updatedAt DateTime?
+// generator client {
+//   provider = "prisma-client-js"
 // }
 
-// model Order {
-//   id          Int        @id @default(autoincrement())
-//   items       OrderItem[]
-//   user User @relation(fields: [userId],references: [id])
-//   userId Int
-//   createAt DateTime? @default(now())
-//   updatedAt DateTime?
+// datasource db {
+//   provider = "postgresql"
+//   url      = env("DATABASE_URL")
 // }
-
-// model OrderItem {
-//   id       Int    @id @default(autoincrement())
-//   dishId   Int
-//   dish     Dish   @relation(fields: [dishId], references: [id])
-//   quantity Int
-//   order    Order  @relation(fields: [orderId], references: [id],onDelete: Cascade)
-//   orderId  Int
-//   createAt DateTime? @default(now())
-//   updatedAt DateTime?
-// }
-
-
-
-/////////////////////////
-
-
 
 
 // model User {
-//   id        Int       @id @default(autoincrement())
-//   username  String    @unique
-//   password  String
-//   role      Role      @relation(fields: [roleId], references: [id])
-//   roleId    Int
-//   orders    Order[]
-//   createdAt DateTime  @default(now())
-//   updatedAt DateTime  @updatedAt
+//   id               Int               @id @default(autoincrement())
+//   username         String            @unique
+//   email            String            @unique
+//   password         String
+//   roleId           Int
+//   photoUrl         String?
+//   role             Role              @relation(fields: [roleId], references: [id])
+//   orders           Order[]
+//   userPermissions  UserPermission[]
+//   createdAt       DateTime          @default(now())
+//   updatedAt       DateTime?         @updatedAt
 // }
 
 // model Role {
-//   id          Int     @id @default(autoincrement())
-//   name        String  @unique
-//   description String?
-//   users       User[]
-//   emoloyes     Employee[]
+//   id            Int               @id @default(autoincrement())
+//   name          String
+//   description   String
+//   users         User[]
+//   rolePermissions RolePermission[]
+//   createdAt     DateTime          @default(now())
+//   updatedAt     DateTime?         @updatedAt
+// }
+
+// model Permission {
+//   id             Int              @id @default(autoincrement())
+//   name           String           @unique
+//   description    String
+//   rolePermissions RolePermission[]
+//   userPermissions UserPermission[]
+//   createdAt      DateTime          @default(now())
+//   updatedAt      DateTime?         @updatedAt
+// }
+
+// model RolePermission {
+//   id             Int              @id @default(autoincrement())
+//   roleId         Int
+//   permissionId   Int
+//   role           Role             @relation(fields: [roleId], references: [id])
+//   permission     Permission       @relation(fields: [permissionId], references: [id])
+
+//   @@unique([roleId, permissionId])
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime?
+// }
+
+// model UserPermission {
+//   id            Int              @id @default(autoincrement())
+//   userId        Int
+//   permissionId  Int
+//   isGranted     Boolean
+//   user          User             @relation(fields: [userId], references: [id])
+//   permission    Permission       @relation(fields: [permissionId], references: [id])
+
+//   @@unique([userId, permissionId])
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime?
 // }
 
 // model MenuItem {
@@ -104,7 +75,7 @@ datasource db {
 //   category    Category  @relation(fields: [categoryId], references: [id])
 //   categoryId  Int
 //   orderItem   OrderItem[]
-//   replenishmentOrder  ReplenishmentOrder []
+//   replenishmentOrder  ReplenishmentOrder[]
 //   inventory    Inventory[]
 //   isAvailable Boolean   @default(true)
 //   createdAt   DateTime  @default(now())
@@ -116,11 +87,21 @@ datasource db {
 //   name        String    @unique
 //   description String?
 //   menuItems   MenuItem[]
+//   createdAt   DateTime  @default(now())
+//   updatedAt   DateTime?
+// }
+
+// enum OrderStatus {
+//   PENDING
+//   CONFIRMED
+//   IN_PROGRESS
+//   COMPLETED
+//   CANCELLED
 // }
 
 // model Order {
 //   id          Int        @id @default(autoincrement())
-//   status      String
+//   status      OrderStatus @default(PENDING)
 //   user        User       @relation(fields: [userId], references: [id])
 //   userId      Int
 //   createdAt   DateTime   @default(now())
@@ -135,6 +116,8 @@ datasource db {
 //   menuItem  MenuItem @relation(fields: [menuItemId], references: [id])
 //   menuItemId Int
 //   quantity  Int
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime?
 // }
 
 // model Inventory {
@@ -143,6 +126,8 @@ datasource db {
 //   menuItemId  Int
 //   stockLevel  Int
 //   reorderLevel Int
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime?
 // }
 
 // model ReplenishmentOrder {
@@ -152,105 +137,117 @@ datasource db {
 //   quantity      Int
 //   orderDate     DateTime @default(now())
 //   receivedDate  DateTime?
-// }
-
-// model Employee {
-//   id          Int     @id @default(autoincrement())
-//   name        String
-//   contactInfo String?
-//   role        Role    @relation(fields: [roleId], references: [id])
-//   roleId      Int
-//   schedules   Schedule[]
-// }
-
-// model Schedule {
-//   id          Int       @id @default(autoincrement())
-//   employee    Employee  @relation(fields: [employeeId], references: [id])
-//   employeeId  Int
-//   shiftStart  DateTime
-//   shiftEnd    DateTime
-//   date        DateTime
+//   createdAt     DateTime @default(now())
+//   updatedAt     DateTime?
 // }
 
 
 
+////////////////////////
 
 
 
-//je vais changer la table User par la table User2
+generator client {
+  provider = "prisma-client-js"
+}
 
-
-
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+enum UserStatus {
+ Actif
+Inactif
+}
+enum OrderType {
+  dine_in
+  takeout
+  online
+}
 model User {
-  id             Int               @id @default(autoincrement())
-  username       String            @unique
-  email          String            @unique
-  password       String
-  roleId         Int
-  photoUrl       String?
-  role           Role              @relation(fields: [roleId], references: [id])
-  orders         Order[]
-  userPermissions UserPermission[]
-  createAt DateTime @default(now())
-  updatedAt DateTime?
+  id               Int               @id @default(autoincrement())
+  username         String            @unique
+  email            String            @unique
+  firstname        String
+  lastname         String
+  password         String
+  roleId           Int
+  photoUrl         String?
+  phone            String?
+  startDate        DateTime?          @default(now())
+  role             Role               @relation("UserRole", fields: [roleId], references: [id]) 
+  status           UserStatus?         @default(Actif)
+  orders           Order[]
+  userPermissions  UserPermission[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime?         @updatedAt
 }
 
 model Role {
-  id            Int               @id @default(autoincrement())
-  name          String
-  description   String
-  users         User[]
+  id              Int               @id @default(autoincrement())
+  name            String            @unique
+  description     String?
+  users           User[]            @relation("UserRole") 
   rolePermissions RolePermission[]
-  employee Employee[]
-  createAt DateTime @default(now())
-  updatedAt DateTime?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime?         @updatedAt
 }
 
 model Permission {
-  id             Int              @id @default(autoincrement())
-  name           String           @unique
-  description    String
+  id              Int              @id @default(autoincrement())
+  name            String           @unique
+  description     String?
   rolePermissions RolePermission[]
   userPermissions UserPermission[]
-  employeePermission EmployeePermission[]
-  createAt DateTime @default(now())
-  updatedAt DateTime?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime?         @updatedAt
 }
 
 model RolePermission {
-  id             Int              @id @default(autoincrement())
-  roleId         Int
-  permissionId   Int
-  role           Role             @relation(fields: [roleId], references: [id])
-  permission     Permission       @relation(fields: [permissionId], references: [id])
+  id              Int              @id @default(autoincrement())
+  roleId          Int
+  permissionId    Int
+  role            Role             @relation(fields: [roleId], references: [id])
+  permission      Permission       @relation(fields: [permissionId], references: [id])
+  isGranted       Boolean          @default(false) // Indique si la permission est accordée pour ce rôle
 
-  @@unique([roleId, permissionId])
-  createAt DateTime @default(now())
-  updatedAt DateTime?
+  @@unique([roleId, permissionId]) // Assure l'unicité de la relation
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime?        @updatedAt
 }
 
 model UserPermission {
-  id            Int              @id @default(autoincrement())
-  userId        Int
-  permissionId  Int
-  isGranted     Boolean
-  user          User             @relation(fields: [userId], references: [id])
-  permission    Permission       @relation(fields: [permissionId], references: [id])
+  id              Int              @id @default(autoincrement())
+  userId          Int
+  permissionId    Int
+  isGranted       Boolean          @default(false) // Indique si la permission est accordée à l'utilisateur
+  user            User             @relation(fields: [userId], references: [id])
+  permission      Permission       @relation(fields: [permissionId], references: [id])
 
-  @@unique([userId, permissionId])
-  createAt DateTime @default(now())
-  updatedAt DateTime?
+  @@unique([userId, permissionId]) // Assure l'unicité de la relation
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime?        @updatedAt
 }
-model EmployeePermission {
-  id            Int              @id @default(autoincrement())
-  EmployeId        Int
-  permissionId  Int
-  isGranted     Boolean
-  employee      Employee         @relation(fields: [EmployeId], references: [id])
-  permission    Permission       @relation(fields: [permissionId], references: [id])
 
-  @@unique([EmployeId, permissionId])
-  createAt DateTime @default(now())
+model Order {
+  id          Int        @id @default(autoincrement())
+  status      OrderStatus @default(PENDING)
+  user        User       @relation(fields: [userId], references: [id])
+  userId      Int
+  type        OrderType?  @default(takeout)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime?  @updatedAt
+  orderItems  OrderItem[]
+}
+
+model OrderItem {
+  id        Int      @id @default(autoincrement())
+  order     Order    @relation(fields: [orderId], references: [id])
+  orderId   Int
+  menuItem  MenuItem @relation(fields: [menuItemId], references: [id])
+  menuItemId Int
+  quantity  Int
+  createdAt DateTime @default(now())
   updatedAt DateTime?
 }
 
@@ -262,12 +259,11 @@ model MenuItem {
   category    Category  @relation(fields: [categoryId], references: [id])
   categoryId  Int
   orderItem   OrderItem[]
-  replenishmentOrder  ReplenishmentOrder []
+  replenishmentOrder  ReplenishmentOrder[]
   inventory    Inventory[]
   isAvailable Boolean   @default(true)
   createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
- 
+  updatedAt   DateTime? @updatedAt
 }
 
 model Category {
@@ -275,35 +271,16 @@ model Category {
   name        String    @unique
   description String?
   menuItems   MenuItem[]
-  createAt DateTime @default(now())
-  updatedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime? @updatedAt
 }
+
 enum OrderStatus {
   PENDING
   CONFIRMED
   IN_PROGRESS
   COMPLETED
   CANCELLED
-}
-model Order {
-  id          Int        @id @default(autoincrement())
-  status      OrderStatus @default(PENDING)     
-  user        User       @relation(fields: [userId], references: [id])
-  userId      Int
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  orderItems  OrderItem[]
-  }
-
-model OrderItem {
-  id        Int      @id @default(autoincrement())
-  order     Order    @relation(fields: [orderId], references: [id])
-  orderId   Int
-  menuItem  MenuItem @relation(fields: [menuItemId], references: [id])
-  menuItemId Int
-  quantity  Int
-  createAt DateTime @default(now())
-  updatedAt DateTime?
 }
 
 model Inventory {
@@ -312,8 +289,8 @@ model Inventory {
   menuItemId  Int
   stockLevel  Int
   reorderLevel Int
-  createAt DateTime @default(now())
-  updatedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime? @updatedAt
 }
 
 model ReplenishmentOrder {
@@ -323,31 +300,6 @@ model ReplenishmentOrder {
   quantity      Int
   orderDate     DateTime @default(now())
   receivedDate  DateTime?
-  createAt DateTime @default(now())
-  updatedAt DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime?
 }
-
-model Employee {
-  id          Int     @id @default(autoincrement())
-  name        String
-  contactInfo String?
-  role        Role    @relation(fields: [roleId], references: [id])
-  roleId      Int
-  schedules   Schedule[]
-  employePermission EmployeePermission[]
-  createAt DateTime @default(now())
-  updatedAt DateTime?
-}
-
-model Schedule {
-  id          Int       @id @default(autoincrement())
-  employee    Employee  @relation(fields: [employeeId], references: [id])
-  employeeId  Int
-  shiftStart  DateTime
-  shiftEnd    DateTime
-  date        DateTime
-  createAt DateTime @default(now())
-  updatedAt DateTime?
-}
-
-

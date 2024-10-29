@@ -39,16 +39,29 @@ export const AuthContextProvider = ({ children }: IProps) => {
 
   const handleLogin = async (email: string, password: string) => {
    loginService.login({email,password})
-   .then(()=>{
+   .then((res)=>{
       navigate('')
+      return res
    })
-   .then(()=>{
-    Swal.fire({
-      title:'login',
-      timer:3000,
-      icon:'success',
-      position:'bottom-left'
-    })
+   .then((res)=>{
+     Swal.fire({
+      title: `Bienvenue, ${res?.data?.user.username}!`,
+      text: "Vous êtes maintenant connecté.",
+      icon: 'success',
+      background: '#f0f9ff',
+      confirmButtonColor: '#3085d6',
+      confirmButtonText: 'Commencer!',
+      customClass: {
+        title: 'custom-title',
+        popup: 'custom-popup'
+      }
+    });
+    // Swal.fire({
+    //   title:'login',
+    //   timer:3000,
+    //   icon:'success',
+    //   position:'bottom-left'
+    // })
    })
    .catch((e)=>{
     console.log({e})
@@ -121,9 +134,17 @@ export const AuthContextProvider = ({ children }: IProps) => {
     })
     .then(()=>{
       Swal.fire({
-        title:'logout',
-        icon:'success'
-      })
+        title: "Déconnexion réussie!",
+        text: "Vous avez été déconnecté avec succès.",
+        icon: 'info',
+        background: '#fef9e7',
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'À bientôt!',
+        customClass: {
+          title: 'custom-title',
+          popup: 'custom-popup'
+        }
+      });
     })
     .catch((e)=>{
        dispatch({

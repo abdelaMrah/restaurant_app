@@ -7,11 +7,22 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class OrderService {
   constructor(private readonly prisma:PrismaService){}
   async create(createOrderDto: CreateOrderDto) {
-    console.log({items:createOrderDto.items})
-    return await this.prisma.order.create({data:{
-      userId:createOrderDto.userId,
-     
-    }})
+     return await this.prisma.order.create({data:{
+      ...createOrderDto,
+      type:'dine_in',
+      orderItems:{
+        createMany:{
+          data:createOrderDto.items.map((item)=>{
+            return {
+              menuItemId:item.dishId,
+              quantity:item.quantity
+            }
+          })
+        },
+
+      }
+      
+     }})
   }
 
   async findAll() {
@@ -56,7 +67,6 @@ export class OrderService {
     // const res = await Promise.all((await orderItems).map((oreder)=>{
     //   return this.prisma.orderItem.delete({where:{id:oreder.id}})
     // }))
-    // console.log({res})
-    await this.prisma.order.delete({where:{id},})
+     await this.prisma.order.delete({where:{id},})
   }
 }

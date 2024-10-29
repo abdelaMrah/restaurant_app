@@ -14,7 +14,20 @@ export class DishService {
   }
 
  async findAll() {
-    return await this.prisma.menuItem.findMany();
+    return await this.prisma.menuItem.findMany({
+      select:{
+        id:true,
+        name:true,
+        price:true,
+        description:true,
+        category:{
+          select:{
+            id:true,
+            name:true,
+          }
+        }
+      }
+    });
   }
 
   async findOne(id: number) {

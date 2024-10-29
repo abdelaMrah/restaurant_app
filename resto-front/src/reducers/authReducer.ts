@@ -3,13 +3,17 @@
 export type User = {
   userId: string;
   email: string;
-  role:string;
+  role:Role;
   photoUrl?:string|null;
 };
 type Auth = {
   isAuth: boolean;
   user?: User;
 };
+type Role={
+  id:number;
+  name:string;
+}
 type Type = "auth"|'loadSession';
 type Payload = {
   auth?: Auth;
@@ -20,14 +24,7 @@ export type Action = {
 };
 export const initialState: State = {
   isSessionLoaded: false,
-  auth:{
-    isAuth:true,
-    user:{
-      email:'',
-      role:'admin',
-      userId:'1'
-    }
-  }
+  auth:undefined
 };
 export type State = {
   auth?: Auth;

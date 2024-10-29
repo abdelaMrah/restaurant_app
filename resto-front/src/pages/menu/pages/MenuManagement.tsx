@@ -1,10 +1,3 @@
-
-
-
-
-
-
-
 import React, { useState } from 'react';
 import {
  Box, Typography, Button, Dialog, DialogTitle, DialogContent,
@@ -16,35 +9,10 @@ import { DataGrid, GridColDef, GridRenderCellParams, GridToolbar } from '@mui/x-
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import { hexToRgba } from '../../../utils/utils';
-
- 
-
-interface MenuItem {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  category: string;
-}
-
-interface Category {
-  id: number;
-  name: string;
-}
-
-const initialMenuItems: MenuItem[] = [
-  { id: 1, name: "Burger Classic", description: "Bœuf, salade, tomate, oignon", price: 8.99, category: "Burgers" },
-  { id: 2, name: "Frites", description: "Portion de frites croustillantes", price: 3.99, category: "Accompagnements" },
-  { id: 3, name: "Salade César", description: "Laitue, parmesan, croûtons, sauce césar", price: 7.99, category: "Salades" },
-];
-
-const initialCategories: Category[] = [
-  { id: 1, name: "Burgers" },
-  { id: 2, name: "Accompagnements" },
-  { id: 3, name: "Salades" },
-  { id: 4, name: "Boissons" },
-  { id: 5, name: "Desserts" },
-];
+import { useQuery } from 'react-query';
+import categorieService, { Category, CreateCategoryDto, UpdateCategoryDto } from './services/categorie.service';
+import menuService, { CreateMenuDto, Menu, UpdateMenuDto } from './services/menu.service';
+import { errorHandler } from '../../../handlers/errorHandler';
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
   props,
@@ -54,16 +22,17 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
 });
 
 export default function MenuManagement() {
-  const [menuItems, setMenuItems] = useState<MenuItem[]>(initialMenuItems);
-  const [categories, setCategories] = useState<Category[]>(initialCategories);
+  
   const [openDialog, setOpenDialog] = useState(false);
   const [openCategoryDialog, setOpenCategoryDialog] = useState(false);
-  const [currentItem, setCurrentItem] = useState<MenuItem | null>(null);
+  const [currentItem, setCurrentItem] = useState<Menu | null>(null);
   const [currentCategory, setCurrentCategory] = useState<Category | null>(null);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
+  const {data:categories,refetch:refetchCategories} = useQuery('categories',async()=>await categorieService.getGategories());
+  const{data:menuItems,refetch:refetchMenu} = useQuery('menu',async()=>await menuService.getMenu());
   const [tabValue, setTabValue] = useState(0);
   const {palette}=useTheme()
-  const handleOpenDialog = (item: MenuItem | null = null) => {
+  const handleOpenDialog = (item: Menu | null = null) => {
     setCurrentItem(item);
     setOpenDialog(true);
   };
@@ -83,60 +52,95 @@ export default function MenuManagement() {
     setCurrentCategory(null);
   };
 
-  const handleSaveItem = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSaveItem =async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const newItem: MenuItem = {
-      id: currentItem ? currentItem.id : Date.now(),
-      name: formData.get('name') as string,
-      description: formData.get('description') as string,
-      price: parseFloat(formData.get('price') as string),
-      category: formData.get('category') as string,
-    };
+   
 
     if (currentItem) {
-      setMenuItems(menuItems.map(item => item.id === currentItem.id ? newItem : item));
-      setSnackbar({ open: true, message: 'Article modifié avec succès', severity: 'success' });
-    } else {
-      setMenuItems([...menuItems, newItem]);
-      setSnackbar({ open: true, message: 'Nouvel article ajouté avec succès', severity: 'success' });
+      const id = currentItem.id;
+      const updateItem: UpdateMenuDto = {
+        name: formData.get('name') as string,
+        description: formData.get('description') as string,
+        price: parseFloat(formData.get('price') as string),
+        categoryId: parseInt(formData.get('categoryId')as string ),
+      };
+      await menuService.updateMenu(id,updateItem)
+      .then(()=>{
+        setSnackbar({ open: true, message: 'Article modifié avec succès', severity: 'success' });
+      }).then(()=>refetchMenu())
+      .catch((error)=>errorHandler(error))
+     } else {
+      console.log({categoryId:(formData.get('categoryId')as string )})
+      const createMenuDto: CreateMenuDto = {
+        name: formData.get('name') as string,
+        description: formData.get('description') as string,
+        price: parseFloat(formData.get('price') as string),
+        categoryId: +(formData.get('categoryId')as string ),
+      };
+      console.log({createMenuDto})
+      await menuService.createMenu(createMenuDto)
+      .then(()=>{
+        setSnackbar({ open: true, message: 'Nouvel article ajouté avec succès', severity: 'success' });
+      }).then(()=>refetchMenu())
+      .catch((error)=>errorHandler(error))
     }
     handleCloseDialog();
   };
 
-  const handleSaveCategory = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSaveCategory =async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const newCategory: Category = {
-      id: currentCategory ? currentCategory.id : Date.now(),
-      name: formData.get('name') as string,
-    };
+   
 
     if (currentCategory) {
-      setCategories(categories.map(cat => cat.id === currentCategory.id ? newCategory : cat));
-      setSnackbar({ open: true, message: 'Catégorie modifiée avec succès', severity: 'success' });
+      const id=currentCategory.id;
+      const updateCategoryDto:UpdateCategoryDto={
+        name: formData.get('name') as string,
+        description: formData.get('description') as string,
+      }
+      await categorieService.updateCategory(id,updateCategoryDto)
+      .then(()=>{
+        setSnackbar({ open: true, message: 'Catégorie modifiée avec succès', severity: 'success' });
+      }).then(()=>refetchCategories())
+      .catch((error)=>errorHandler(error))
     } else {
-      setCategories([...categories, newCategory]);
-      setSnackbar({ open: true, message: 'Nouvelle catégorie ajoutée avec succès', severity: 'success' });
+      const createCategoryDto:CreateCategoryDto={
+        name: formData.get('name') as string,
+        description: formData.get('description') as string,
+      }
+      await categorieService.createCategory(createCategoryDto)
+      .then(()=>{
+        setSnackbar({ open: true, message: 'Nouvelle catégorie ajoutée avec succès', severity: 'success' });
+      }).then(()=>refetchCategories())
+      .catch((error)=>errorHandler(error))
     }
     handleCloseCategoryDialog();
   };
 
-  const handleDeleteItem = (id: number) => {
-    setMenuItems(menuItems.filter(item => item.id !== id));
-    setSnackbar({ open: true, message: 'Article supprimé avec succès', severity: 'success' });
+  const handleDeleteItem = async(id: number) => {
+    await menuService.deleteMenu(id)
+    .then(()=>{
+      setSnackbar({ open: true, message: 'Article supprimé avec succès', severity: 'success' });
+    }).then(()=>refetchMenu())
+    .catch((error)=>errorHandler(error))
   };
 
-  const handleDeleteCategory = (id: number) => {
-    setCategories(categories.filter(cat => cat.id !== id));
-    setSnackbar({ open: true, message: 'Catégorie supprimée avec succès', severity: 'success' });
+  const handleDeleteCategory =async (id: number) => {
+    await categorieService.deleteCategory(id)
+    .then(()=>{
+      setSnackbar({ open: true, message: 'Catégorie supprimée avec succès', severity: 'success' });
+    }).then(()=>refetchCategories())
+    .catch((error)=>errorHandler(error))
   };
 
   const columns: GridColDef[] = [
     { field: 'name', headerName: 'Nom', flex:2},
     { field: 'description', headerName: 'Description', flex:2 },
     { field: 'price', headerName: 'Prix', width: 100, valueFormatter: (params:number) => `${params.toFixed(2)} DA` },
-    { field: 'category', headerName: 'Catégorie', flex:1, },
+    { field: 'category', headerName: 'Catégorie', flex:1, 
+      valueGetter:(params:Category)=>params.name
+    },
     {
       field: 'actions',
       headerName: 'Actions',
@@ -213,7 +217,7 @@ export default function MenuManagement() {
               Ajouter une catégorie
             </Button>
             <List>
-              {categories.map((category) => (
+              {categories?.map((category) => (
                 <ListItem key={category.id}>
                   <ListItemText primary={category.name} />
                   <ListItemSecondaryAction>
@@ -271,13 +275,13 @@ export default function MenuManagement() {
                 <InputLabel id="category-label">Catégorie</InputLabel>
                 <Select
                   labelId="category-label"
-                  name="category"
-                  defaultValue={currentItem?.category || ''}
+                  name="categoryId"
+                  defaultValue={currentItem?.category.id || ''}
                   label="Catégorie"
                   required
                 >
-                  {categories.map((category) => (
-                    <MenuItem key={category.id} value={category.name}>{category.name}</MenuItem>
+                  {categories?.map((category) => (
+                    <MenuItem key={category.id} value={category.id}>{category.name}</MenuItem>
                   ))}
                 </Select>
               </FormControl>

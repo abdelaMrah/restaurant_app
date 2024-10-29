@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
-  ThemeProvider, createTheme,
-  CssBaseline, Box, Typography, Paper, Grid, Select, MenuItem, FormControl, InputLabel,
+  Box, Typography, Paper, Grid, Select, MenuItem, FormControl, InputLabel,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow
 } from '@mui/material';
 import { 
@@ -9,17 +8,7 @@ import {
   PieChart, Pie, Cell
 } from 'recharts';
 
-// Thème cohérent avec le reste de l'application
-const theme = createTheme({
-  palette: {
-    primary: { main: '#FF6B6B' },
-    secondary: { main: '#4ECDC4' },
-    background: { default: '#F7F7F7' },
-  },
-  typography: {
-    fontFamily: 'Roboto, "Helvetica Neue", Arial, sans-serif',
-  },
-});
+ 
 
 // Données simulées pour les graphiques
 const salesData = [
@@ -57,8 +46,7 @@ export default function AnalyticsDashboard() {
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+ 
       <Box sx={{ flexGrow: 1, p: 3 }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Tableau de Bord Analytique
@@ -172,6 +160,5 @@ export default function AnalyticsDashboard() {
           </Grid>
         </Grid>
       </Box>
-    </ThemeProvider>
-  );
+   );
 }

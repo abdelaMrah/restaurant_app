@@ -7,22 +7,20 @@ import * as argon2 from 'argon2'
 import { ConfigService } from '@nestjs/config';
 import { UserService } from 'src/user/user.service';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
+import { RoleService } from 'src/user/role/role.service';
 @Injectable()
 export class AuthService {
     constructor(
         private readonly prisma:PrismaService,
         private jwtService: JwtService,
         private readonly config:ConfigService,
-        private readonly userService:UserService
+        private readonly userService:UserService,
+        private readonly roleService:RoleService,
     ){}
     async shignIn(signInDto:SignInDto){
- 
-        const user=await this.prisma.user.findUnique({
-            where:{
-                email:signInDto.email
-            }
-        });
-         if(!user){
+        
+        const user = await this.userService.findByEmaail(signInDto.email);
+          if(!user){
             throw new UnauthorizedException();
         }
         const verify =await argon2.verify(user.password,signInDto.password);
@@ -32,28 +30,29 @@ export class AuthService {
          
          const token = await this.signToken(user.id,user.email)
         delete user.password;
-        console.log({
-            token,user
-        })
+      
         return {
             token,
             user
         }
     }
     async signUp(signUpDto:CreateUserDto){ 
-        const userExist = await this.prisma.user.findUnique({where:{email:signUpDto.email}})
+        const role = await this.roleService.getRoleId(+signUpDto.roleId);
+        if(!role){
+            throw new NotFoundException({message:`role with id ${signUpDto.roleId} n'existe pas`})
+        }
+        const userExist = await this.userService.findByEmaail(signUpDto.email);
         if(userExist) throw new ForbiddenException({message:`user ${signUpDto.email} alredy exist !`})
-            const user = await this.userService.create(signUpDto as CreateUserDto)
-        // const user =await this.prisma.user.create({
-        // data:{
-        //     email:signUpDto.email,
-        //     username:signUpDto.userName,
-        //     password:await argon2.hash(signUpDto.password),
-        //     // role:signUpDto.role
-        // }});
+
+        const user = await this.userService.create({
+            ...signUpDto,
+            password:await argon2.hash(signUpDto.password)
+        });
+      
         if(!user) throw new BadRequestException({message:`error , bad request`});
-        // delete user.password;
+        delete user.password;
         return user;
+        
     }
 
     async signToken(userId:number,email:string):Promise<{"access_token":string,refresh_token:string}>{
@@ -69,7 +68,7 @@ export class AuthService {
             secret:this.config.get('SECRET'),
             expiresIn:'7days'
         });
-          //  console.log(refreshToken)
+          
         return {
             access_token:token,
             refresh_token:refreshToken,

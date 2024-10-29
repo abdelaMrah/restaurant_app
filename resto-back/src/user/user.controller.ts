@@ -6,11 +6,12 @@ import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/auth/guard/role.guard';
 import { Role } from 'src/auth/decorators/Roles';
 import { Roles } from 'src/auth/entities/role.enum';
+import { RoleService } from './role/role.service';
 @UseGuards(AuthGuard('jwt'),RolesGuard)
 @Role(Roles.ADMIN)
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService,private readonly roleService:RoleService) {}
 
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
@@ -20,6 +21,10 @@ export class UserController {
   @Get()
   findAll() {
     return this.userService.findAll();
+  }
+  @Get('roles')
+  getRoles(){
+    return this.roleService.getRoles();
   }
 
   @Get(':id')

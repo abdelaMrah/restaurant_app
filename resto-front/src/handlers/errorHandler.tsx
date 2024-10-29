@@ -53,11 +53,12 @@ export const errorHandler =(error:any)=>{
  const showToast = ({ message}:{ message:string}) => {
     Swal.fire({
         toast:true,
-        position:'top',
+        position:'bottom',
         icon:'error',
         title:message,
         showCloseButton:true,
         timer:3000,
+        
         
     })
     

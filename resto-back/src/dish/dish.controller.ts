@@ -7,8 +7,8 @@ import { RolesGuard } from 'src/auth/guard/role.guard';
 import { Role } from 'src/auth/decorators/Roles';
 import { Roles } from 'src/auth/entities/role.enum';
  
-@UseGuards(AuthGuard('jwt'),RolesGuard)
-@Role(Roles.ADMIN,Roles.USER)
+@UseGuards(RolesGuard,AuthGuard('jwt'))
+@Role(Roles.ADMIN) 
 @Controller('dish')
 export class DishController {
   constructor(private readonly dishService: DishService) {}

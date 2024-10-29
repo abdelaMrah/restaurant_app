@@ -2,13 +2,13 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@n
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/auth/guard/role.guard';
-import { Role } from 'src/auth/decorators/Roles';
+import { AuthGuard } from '@nestjs/passport';
 import { Roles } from 'src/auth/entities/role.enum';
-
-@UseGuards(AuthGuard('jwt'),RolesGuard)
-@Role(Roles.ADMIN,Roles.USER)
+import { Role } from 'src/auth/decorators/Roles';
+ 
+@UseGuards(RolesGuard,AuthGuard('jwt'))
+@Role(Roles.ADMIN) 
 @Controller('category')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}

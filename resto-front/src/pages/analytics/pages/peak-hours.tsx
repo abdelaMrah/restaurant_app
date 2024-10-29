@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
-  ThemeProvider, createTheme,
-  CssBaseline, Box, Typography, Paper, Select, MenuItem, FormControl, InputLabel,
+  Box, Typography, Paper, Select, MenuItem, FormControl, InputLabel,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow
 } from '@mui/material';
 import { 
@@ -9,17 +8,7 @@ import {
   BarChart, Bar
 } from 'recharts';
 
-// Thème cohérent avec le reste de l'application
-const theme = createTheme({
-  palette: {
-    primary: { main: '#FF6B6B' },
-    secondary: { main: '#4ECDC4' },
-    background: { default: '#F7F7F7' },
-  },
-  typography: {
-    fontFamily: 'Roboto, "Helvetica Neue", Arial, sans-serif',
-  },
-});
+ 
 
 // Données simulées pour les graphiques
 const weekdayData = [
@@ -74,8 +63,7 @@ export default function PeakHoursAnalysis() {
   const currentData = dayType === 'weekday' ? weekdayData : weekendData;
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+   
       <Box sx={{ flexGrow: 1, p: 3 }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Analyse des Heures de Pointe
@@ -171,6 +159,5 @@ export default function PeakHoursAnalysis() {
           </TableContainer>
         </Paper>
       </Box>
-    </ThemeProvider>
-  );
+   );
 }

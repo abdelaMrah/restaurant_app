@@ -24,6 +24,8 @@ import AnalyticsDashboard from "./pages/analytics/pages/analytics-dashboard";
 import PeakHoursAnalysis from "./pages/analytics/pages/peak-hours";
 import RestaurantSettings from "./pages/settings/restaurant-setting";
 import OnlineOrders from "./pages/commandes/pages/online-order";
+import { Table } from "./pages/tables/Tables";
+import RestaurantTables from "./pages/tables/pages/RestaurantTables";
  
 export const routers= createBrowserRouter([
    {
@@ -142,6 +144,16 @@ export const routers= createBrowserRouter([
                         {
                             path:'profile',
                             element:<UserProfileAndSettings/>
+                        }
+                    ]
+                },
+                {
+                    path:'tables',
+                    element:<Table/>,
+                    children:[
+                        {
+                            path:'',
+                            element:<RestaurantTables/>
                         }
                     ]
                 }

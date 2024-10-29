@@ -29,8 +29,7 @@ import {
   import { Outlet, useLocation, useNavigate } from 'react-router-dom';
   import { 
       useContext,
-    // useContext,
-     useEffect, useState } from 'react';
+      useEffect, useState } from 'react';
   import { AuthContext } from '../context/authContext';
   import MobileNav from './MobileNav';
   
@@ -123,14 +122,14 @@ import {
     };
     const menuItems = [
       { text: 'Dashboard', icon: <DashboardIcon />,path:'' },
-      { text: 'Emissions', icon: <ConnectedTv /> ,path:'emissions'},
-      { text: 'Live', icon: <LiveTv /> ,path:'live'},
+      { text: 'Emissions', icon: <ConnectedTv /> ,path:'commandes'},
+      { text: 'Live', icon: <LiveTv /> ,path:'analyse'},
       { text: 'Ustilisateurs', icon: <PeopleIcon /> ,path:'users' }
     ];
     const [selectedItem, setSelectedItem] = useState('');
     
      useEffect(()=>{
-      const path = location.pathname.replace('/v3/', '');
+      const path = location.pathname.replace('/', '');
       setSelectedItem(menuItems.find((e)=>e.path==path)?.text??'Dashboard')
     },[location])
     
@@ -156,7 +155,7 @@ import {
             <Typography variant="subtitle2" align="center" sx={{ mb: 2 }}>
               
               {
-                authContext.user&&authContext.user.role.toString()
+                authContext.user&&authContext.user.role.name.toLocaleLowerCase()
               } </Typography>
             ):null
            }
@@ -177,7 +176,7 @@ import {
                 selected={selectedItem === item.text}
                 onClick={() => {navigate(`${item.path}`);setSelectedItem(item.text)}}
               >
-                  <Tooltip title={item.text}>
+                  <Tooltip title={item.text.toLowerCase()} placement='right-start'>
                       <StyledListItemIcon>{item.icon}</StyledListItemIcon>
                   </Tooltip>
                 <ListItemText primary={drawerExpanded ? item.text : ''} />
