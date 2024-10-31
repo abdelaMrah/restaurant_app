@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { OrderItemService } from './order-item.service';
 import { CreateOrderItemDto } from './dto/create-order-item.dto';
 import { UpdateOrderItemDto } from './dto/update-order-item.dto';
@@ -7,6 +7,8 @@ import { RolesGuard } from 'src/auth/guard/role.guard';
 import { Role } from 'src/auth/decorators/Roles';
 import { Roles } from 'src/auth/entities/role.enum';
 
+@UseGuards(AuthGuard('jwt'),RolesGuard)
+@Role(Roles.ADMIN)
  
 @Controller('order-item')
 export class OrderItemController {
@@ -18,8 +20,8 @@ export class OrderItemController {
   }
 
   @Get()
-  findAll() {
-    return this.orderItemService.findAll();
+  findAll(@Query('orderId') orderId?:string) {
+    return this.orderItemService.getItemsByOrder(+orderId);
   }
 
   @Get(':id')

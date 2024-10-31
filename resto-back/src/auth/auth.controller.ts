@@ -11,15 +11,18 @@ import { User } from '@prisma/client';
 import { Role } from './decorators/Roles';
 import { Roles } from './entities/role.enum';
 import { RoleService } from 'src/user/role/role.service';
+import { PermissionGuard } from './guard/permission.guard';
+import { Permission } from './decorators/Permissions';
+import { Permissions } from './entities/permissions.enum';
 
 @Injectable()
 @Controller('auth')
 export class AuthController {
     constructor(private readonly auth:AuthService,private readonly roleService:RoleService){}
    
-    @UseGuards(RolesGuard,AuthGuard('jwt'))
+    @UseGuards(AuthGuard('jwt'),RolesGuard,PermissionGuard)
     @Role(Roles.ADMIN)
-    @isPublic()
+    @Permission(Permissions.MANAGE_STAFF)
     @Post('signUp')
     async signUp(@Body() signUpDto:SignUpDto,){
         const user=await this.auth.signUp(signUpDto);
@@ -33,18 +36,16 @@ export class AuthController {
         return response.send({user})
     }
     
-    @UseGuards(RolesGuard,AuthGuard('jwt'))
-    @Role(Roles.ADMIN,Roles.USER)
+    @UseGuards(AuthGuard('jwt'))
     @Get('logout')
     async logout(@Res() response:Response){
         response.cookie('auth-token','')
         return response.send({logout:true})
     }
 
-    @UseGuards(RolesGuard,AuthGuard('jwt'))
-    @Role(Roles.ADMIN,Roles.USER)
+    @UseGuards(AuthGuard('jwt'))
     @Get('session')
-   async getSession(@getUser() user:User){
+    async getSession(@getUser() user:User){
         delete user.password;
         const role=await this.roleService.getRoleId(user.roleId);
         return {
@@ -55,4 +56,20 @@ export class AuthController {
             }
         }
     }
+    @UseGuards(AuthGuard('refresh'))
+    @Get('refresh')
+    async refresh(@getUser()user:User,@Res() response:Response){
+        const token = await this.auth.signToken(user.id,user.email);
+        response.cookie('auth-token',{access_token:token.access_token,refresh_token:token.refresh_token},{httpOnly:true})
+        const role=await this.roleService.getRoleId(user.roleId);
+        return response.send({
+            ...user,
+            role:{
+                id:role.id,
+                name:role.name
+            }
+        })
+    }
+
+     
 }

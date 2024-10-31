@@ -10,8 +10,8 @@ import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/ico
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import { hexToRgba } from '../../../utils/utils';
 import { useQuery } from 'react-query';
-import categorieService, { Category, CreateCategoryDto, UpdateCategoryDto } from './services/categorie.service';
-import menuService, { CreateMenuDto, Menu, UpdateMenuDto } from './services/menu.service';
+import categorieService, { Category, CreateCategoryDto, UpdateCategoryDto } from '../services/categorie.service';
+import menuService, { CreateMenuDto, Menu, UpdateMenuDto } from '../services/menu.service';
 import { errorHandler } from '../../../handlers/errorHandler';
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(

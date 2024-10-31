@@ -6,5 +6,6 @@ export class UpdateOrderDto {
     @IsNumber()
     userId :number;
     @IsNotEmpty()
-    items: UpdateOrderItemDto[]
+    orderItems: UpdateOrderItemDto[]
+    stasus?:OrderStatus
  }

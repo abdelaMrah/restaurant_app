@@ -26,6 +26,8 @@ import RestaurantSettings from "./pages/settings/restaurant-setting";
 import OnlineOrders from "./pages/commandes/pages/online-order";
 import { Table } from "./pages/tables/Tables";
 import RestaurantTables from "./pages/tables/pages/RestaurantTables";
+import SalaryManagement from "./pages/users/pages/salary.management";
+import Sidebar from "./Layouts/SideBar2";
  
 export const routers= createBrowserRouter([
    {
@@ -115,6 +117,10 @@ export const routers= createBrowserRouter([
                         {
                             path:'permissions',
                             element:<RolePermissionManagement/>
+                        },
+                        {
+                            path:'salary',
+                            element:<SalaryManagement/>
                         }
                     ]
                 },
@@ -162,6 +168,10 @@ export const routers= createBrowserRouter([
         {
             path:'login',
             element:<Login/>
+        },
+        {
+            path:'sidebar',
+            element:<Sidebar onClose={()=>{} } open={false}/>
         }
     ]
    }

@@ -8,6 +8,9 @@ export class PermissionService {
         private readonly prisma:PrismaService
     ){}
 
+   async getRoleId(roleId:number){
+    return await this.prisma.role.findUnique({where:{id:roleId}})
+   }
    async getPermissions(){
         return await this.prisma.permission.findMany();
     }

@@ -62,11 +62,11 @@ export class AuthService {
         }
         const token=await this.jwtService.signAsync(payload,{
             secret:this.config.get('SECRET'),
-            expiresIn:'1h'
+            expiresIn:'12h'
         })
         const refreshToken = await this.jwtService.signAsync(payload,{
             secret:this.config.get('SECRET'),
-            expiresIn:'7days'
+            expiresIn:'1d'
         });
           
         return {
@@ -75,11 +75,37 @@ export class AuthService {
         }
     }
 
+    async verifyAccessToken(refreshToken: string) {
+            
+        try {
+               const decoded =await this.jwtService.verify(refreshToken,{
+                secret:this.config.get('SECRET'),
+               },)
+               if(!decoded) throw new NotFoundException()
+                const email:string =decoded.email
+              const user = await this.prisma.user.findUnique({
+               
+                   where:{
+                       email,
+                    },
+               })
+               if(!user)return undefined
+              
+           
+             delete user.password
+
+           return user;
+       } catch (err) {
+         throw new UnauthorizedException('Invalid access token');
+       
+       }
+     }
+
     async verifyRefresh(refreshToken: string) {
             
         try {
                const decoded =await this.jwtService.verify(refreshToken,{
-                secret:'abdelamrah',
+                secret:this.config.get('SECRET'),
                },)
                if(!decoded) throw new NotFoundException()
                 const email:string =decoded.email
@@ -93,6 +119,7 @@ export class AuthService {
               
            
              delete user.password
+
            return user;
        } catch (err) {
          throw new UnauthorizedException('Invalid refresh token');

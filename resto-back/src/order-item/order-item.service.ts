@@ -14,7 +14,13 @@ export class OrderItemService {
   async findAll() {
     return await this.prisma.orderItem.findMany();
   }
-
+  async getItemsByOrder(orderId:number){
+    return this.prisma.orderItem.findMany({
+      where:{
+        orderId
+      }
+    })
+  }
   async findOne(id: number) {
     return await this.prisma.orderItem.findUnique({where:{id}})
   }

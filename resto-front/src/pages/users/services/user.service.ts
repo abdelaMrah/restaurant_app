@@ -1,4 +1,4 @@
-import ApiService from "../../../ApiService";
+import ApiService from "../../../api/ApiService";
 import { Role } from "./role.service";
 export interface User{
     id: number;

@@ -6,13 +6,17 @@ import { RolesGuard } from 'src/auth/guard/role.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { Roles } from 'src/auth/entities/role.enum';
 import { Role } from 'src/auth/decorators/Roles';
+import { Permission } from 'src/auth/decorators/Permissions';
+import { Permissions } from 'src/auth/entities/permissions.enum';
+import { PermissionGuard } from 'src/auth/guard/permission.guard';
  
-@UseGuards(RolesGuard,AuthGuard('jwt'))
-@Role(Roles.ADMIN) 
+@UseGuards(AuthGuard('jwt'),RolesGuard,PermissionGuard)
+@Role(Roles.ADMIN,Roles.USER) 
 @Controller('category')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
+  @Permission(Permissions.MANAGE_MENU)
   @Post()
   create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoryService.create(createCategoryDto);

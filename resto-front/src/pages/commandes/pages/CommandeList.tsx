@@ -260,7 +260,7 @@
 
 
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Box,
   Typography,
@@ -281,6 +281,7 @@ import {
   List,
   ListItem,
   ListItemText,
+  useMediaQuery,
 } from '@mui/material';
 import {
   AccessTime as TimeIcon,
@@ -291,8 +292,11 @@ import {
   LocalDining as DineInIcon,
   TakeoutDining as TakeoutIcon,
   Computer as OnlineIcon,
+  AllInclusive as AllCmmande
 } from '@mui/icons-material';
-
+import { useQuery } from 'react-query';
+import orderService, { OrderResponse, OrderStatus } from '../services/orser.service'
+import Swal from 'sweetalert2';
 interface OrderItem {
   id: string;
   name: string;
@@ -306,7 +310,7 @@ interface Order {
   tableNumber?: number;
   customerName?: string;
   items: OrderItem[];
-  status: 'pending' | 'in-progress' | 'ready';
+  status:OrderStatus
   timestamp: Date;
 }
 
@@ -320,7 +324,7 @@ const initialOrders: Order[] = [
       { id: 'a1', name: 'Pizza Margherita', quantity: 2, price: 12 },
       { id: 'a2', name: 'Salade César', quantity: 1, price: 8 },
     ],
-    status: 'pending',
+    status: OrderStatus.PENDING,
     timestamp: new Date(Date.now() - 1000 * 60 * 15),
   },
   {
@@ -331,7 +335,7 @@ const initialOrders: Order[] = [
       { id: 'b1', name: 'Burger Deluxe', quantity: 3, price: 15 },
       { id: 'b2', name: 'Frites', quantity: 2, price: 4 },
     ],
-    status: 'in-progress',
+    status:OrderStatus.IN_PROGRESS,
     timestamp: new Date(Date.now() - 1000 * 60 * 5), 
   },
   {
@@ -342,7 +346,7 @@ const initialOrders: Order[] = [
       { id: 'c1', name: 'Pâtes Carbonara', quantity: 1, price: 14 },
       { id: 'c2', name: 'Tiramisu', quantity: 1, price: 6 },
     ],
-    status: 'ready',
+    status: OrderStatus.COMPLETED,
     timestamp: new Date(Date.now() - 1000 * 60 * 25),
   },
   {
@@ -353,10 +357,36 @@ const initialOrders: Order[] = [
       { id: 'd1', name: 'Steak Frites', quantity: 2, price: 22 },
       { id: 'd2', name: 'Vin Rouge', quantity: 1, price: 18 },
     ],
-    status: 'in-progress',
+    status: OrderStatus.IN_PROGRESS,
     timestamp: new Date(Date.now() - 1000 * 60 * 10), 
   },
 ];
+
+const orderPipe =(orders:OrderResponse[]|undefined):Order[]=>{
+ if(orders){
+  return orders.map((order, index) => {
+    return {
+        id: order.id.toString(),
+        
+        type:order.type.toString().replace('_','-'),
+        tableNumber: index + 3,
+        items: order.orderItems.map((item) => {
+            return {
+            
+                id:item.menuItem.id.toString(),
+                name: item.menuItem.name,
+                quantity: item.menuItem.orderItem[0].quantity,
+                price: item.menuItem.price 
+            };
+        }),
+        status: order.status.toLowerCase(),
+        timestamp: new Date(new Date(order.createdAt).getTime() - 1000 * 60 * (index + 1) * 5),  
+    };
+}) as Order[]
+ }
+
+  return []
+}
 
 export default function AllCurrentOrders() {
   const [orders, setOrders] = useState<Order[]>(initialOrders);
@@ -364,15 +394,30 @@ export default function AllCurrentOrders() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentTab, setCurrentTab] = useState(0);
   const theme = useTheme();
-
+  const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
+  const {data,refetch:refetchOrder} = useQuery('orders',async()=>await orderService.getOrders())
+  useEffect(() => {
+    // console.log({orders:orderPipe(data)})
+    setOrders(orderPipe(data))
+    console.log({orders})
+  }, [data])
+  
   const handleStatusChange = (orderId: string, newStatus: Order['status']) => {
     setOrders(orders.map(order => 
       order.id === orderId ? { ...order, status: newStatus } : order
     ));
   };
 
-  const handleDeleteOrder = (orderId: string) => {
+  const handleDeleteOrder = async(orderId: string) => {
     setOrders(orders.filter(order => order.id !== orderId));
+    await orderService.deleteOrder(+orderId)
+    .then(()=>{
+      Swal.fire({
+        title:'commande annuler',
+        icon:'warning',
+        toast:true
+      })
+    }).then(()=>refetchOrder)
   };
 
   const handleEditOrder = (order: Order) => {
@@ -389,14 +434,18 @@ export default function AllCurrentOrders() {
     return items.reduce((total, item) => total + item.price * item.quantity, 0);
   };
 
-  const getStatusColor = (status: Order['status']) => {
+  const getStatusColor = (status: OrderStatus) => {
     switch (status) {
-      case 'pending':
+      case OrderStatus.PENDING:
         return theme.palette.warning.main;
-      case 'in-progress':
+      case OrderStatus.IN_PROGRESS:
         return theme.palette.info.main;
-      case 'ready':
+      case OrderStatus.COMPLETED:
         return theme.palette.success.main;
+        case OrderStatus.CONFIRMED:
+          return theme.palette.primary.main;
+      case OrderStatus.CANCELLED:
+        return theme.palette.error.main;
       default:
         return theme.palette.grey[500];
     }
@@ -444,22 +493,42 @@ export default function AllCurrentOrders() {
       <Tabs value={currentTab} onChange={(_, newValue) => setCurrentTab(newValue)} sx={{ mb: 3 }} variant='fullWidth'>
         <Tab label={
           <Badge badgeContent={orders.length} color="success" variant='standard'>
-            Toutes
+            {isMobile ? (<>
+            <AllCmmande/>
+            </>):"Tous"}
           </Badge>
         } />
         <Tab label={
           <Badge badgeContent={orders.filter(o => o.type === 'dine-in').length} color="success" >
-            Sur place
+            {
+              isMobile ?
+              (<>
+              <DeleteIcon/>
+              </>):
+              "Sur place"
+            }
           </Badge>
         } />
         <Tab label={
           <Badge badgeContent={orders.filter(o => o.type === 'takeout').length} color="success">
-            À emporter
+            {
+              isMobile ? (
+                <>
+                <TakeoutIcon/>
+                </>
+              ):
+              "À emporter"
+            }
           </Badge>
         } />
         <Tab label={
           <Badge badgeContent={orders.filter(o => o.type === 'online').length} color="success">
-            En ligne
+            {
+              isMobile? (
+              <>
+              <OnlineIcon/>
+              </>):"En ligne"
+            }
           </Badge>
         } />
       </Tabs>
@@ -486,7 +555,7 @@ export default function AllCurrentOrders() {
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
                 <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-                  Total: {calculateTotal(order.items).toFixed(2)} €
+                  Total: {calculateTotal(order.items).toFixed(2)} DA
                 </Typography>
                 <Chip
                   icon={<TimeIcon />}
@@ -509,8 +578,8 @@ export default function AllCurrentOrders() {
                 variant="contained"
                 color="primary"
                 startIcon={<CompleteIcon />}
-                onClick={() => handleStatusChange(order.id, 'ready')}
-                disabled={order.status === 'ready'}
+                onClick={() => handleStatusChange(order.id, OrderStatus.COMPLETED)}
+                disabled={order.status === OrderStatus.COMPLETED}
               >
                 Marquer comme prêt
               </Button>
@@ -537,13 +606,13 @@ export default function AllCurrentOrders() {
                       secondary={`${item.quantity} x ${item.price.toFixed(2)} €`}
                     />
                     <Typography variant="body2">
-                      {(item.quantity * item.price).toFixed(2)} €
+                      {(item.quantity * item.price).toFixed(2)} DA
                     </Typography>
                   </ListItem>
                 ))}
               </List>
               <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mt: 2 }}>
-                Total: {calculateTotal(selectedOrder.items).toFixed(2)} €
+                Total: {calculateTotal(selectedOrder.items).toFixed(2)} DA
               </Typography>
             </Box>
           )}

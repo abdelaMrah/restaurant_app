@@ -108,7 +108,7 @@ export default function StaffManagement() {
   };
 
   const handleDeleteEmployee =async (id: number) => {
-    setEmployees(employees?.filter(emp => emp.id !== id));
+    // setEmployees(employees?.filter(emp => emp.id !== id));
     await userService.deleteUser(id)
     .then(()=>{
       setSnackbar({ open: true, message: 'Employé supprimé avec succès', severity: 'success' });
@@ -178,16 +178,16 @@ export default function StaffManagement() {
         </Paper>
         <Paper elevation={3} sx={{ flex: 1, p: 2 }}>
           <Typography variant="h6" gutterBottom>Employés actifs</Typography>
-          <Typography variant="h4">
+          {/* <Typography variant="h4">
             {employees?.filter(emp => emp.status === 'Actif').length} 
-            </Typography>
+            </Typography> */}
         </Paper>
         <Paper elevation={3} sx={{ flex: 1, p: 2 }}>
           <Typography variant="h6" gutterBottom>Employés inactifs</Typography>
-          <Typography variant="h4">
+          {/* <Typography variant="h4">
             {employees?.filter(emp => emp.status === 'Inactif').length}
             
-            </Typography>
+            </Typography> */}
         </Paper>
       </Box>
 

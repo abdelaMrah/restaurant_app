@@ -12,7 +12,7 @@ export class OrderService {
       type:'dine_in',
       orderItems:{
         createMany:{
-          data:createOrderDto.items.map((item)=>{
+          data:createOrderDto.orderItems.map((item)=>{
             return {
               menuItemId:item.dishId,
               quantity:item.quantity
@@ -26,7 +26,29 @@ export class OrderService {
   }
 
   async findAll() {
-    return await this.prisma.order.findMany();
+    return await this.prisma.order.findMany({
+      include:{
+        orderItems:{
+          select:{
+             menuItem:{
+              select:{ 
+                name:true,
+                id:true,
+                description:true,
+                price:true,
+                orderItem:{
+                  select:{
+                    quantity:true,
+                    
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+      }
+    });
   }
 
   async findOne(id: number) {

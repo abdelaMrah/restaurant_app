@@ -6,22 +6,30 @@ import { CategoryModule } from './category/category.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import { OrderItemModule } from './order-item/order-item.module';
-import { PrismaService } from './prisma/prisma.service';
-import { AuthModule } from './auth/auth.module';
-import { RolesGuard } from './auth/guard/role.guard';
-import { APP_GUARD } from '@nestjs/core';
-  
+ import { AuthModule } from './auth/auth.module';
+
+import { EmployeModule } from './employe/employe.module';
+import { AbdcenceModule } from './abbsence/absence.module';
+import { AdvanceModule } from './advance/advance.module';
+ 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal:true
     }),
-    DishModule, OrderModule, UserModule, CategoryModule, PrismaModule, OrderItemModule, AuthModule],
+    DishModule,
+    OrderModule,
+    UserModule,
+    CategoryModule,
+    PrismaModule, 
+    OrderItemModule,AuthModule,
+    EmployeModule, 
+    AbdcenceModule,
+    AdvanceModule,
+    
+  ],
   providers: [
-    {
-      provide:APP_GUARD,
-      useClass:RolesGuard,
-    }
+    
   ],
 })
 export class AppModule {}

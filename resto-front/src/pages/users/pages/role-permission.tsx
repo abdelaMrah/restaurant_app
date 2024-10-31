@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
  Box, Typography, Button, Dialog, DialogTitle, DialogContent,
   DialogActions, TextField, Checkbox, FormControlLabel, Snackbar, Paper,
@@ -7,17 +7,21 @@ import {
 } from '@mui/material';
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
+import { useQuery } from 'react-query';
+import roleService, { CreateRoleDto, RoleResponse } from '../services/role.service';
+import { errorHandler } from '../../../handlers/errorHandler';
 
   
 
 interface Role {
   id: number;
   name: string;
+  description?:string;
   permissions: string[];
 }
 
 interface Permission {
-  id: string;
+  id: number;
   name: string;
   description: string;
 }
@@ -29,15 +33,20 @@ const initialRoles: Role[] = [
   { id: 4, name: "Cuisinier", permissions: ["view_menu", "update_inventory"] },
 ];
 
-const availablePermissions: Permission[] = [
-  { id: "manage_staff", name: "Gérer le personnel", description: "Ajouter, modifier et supprimer des employés" },
-  { id: "manage_menu", name: "Gérer le menu", description: "Ajouter, modifier et supprimer des articles du menu" },
-  { id: "manage_inventory", name: "Gérer l'inventaire", description: "Gérer les stocks et les commandes" },
-  { id: "view_reports", name: "Voir les rapports", description: "Accéder aux rapports financiers et d'activité" },
-  { id: "view_menu", name: "Voir le menu", description: "Consulter le menu du restaurant" },
-  { id: "take_orders", name: "Prendre les commandes", description: "Enregistrer les commandes des clients" },
-  { id: "update_inventory", name: "Mettre à jour l'inventaire", description: "Mettre à jour les quantités en stock" },
-];
+const rolePipe =(rolesResponse:RoleResponse[]|undefined):Role[]=>{
+    if(rolesResponse){
+      return rolesResponse?.map((role)=>{
+        return {
+         ...role,
+         permissions:role.rolePermissions.map((rolePermissions)=>{
+          return rolePermissions.permission.name 
+         })
+        } as Role
+      })
+    }
+    return []
+     
+}
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
   props,
@@ -47,13 +56,16 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
 });
 
 export default function RolePermissionManagement() {
-  const [roles, setRoles] = useState<Role[]>(initialRoles);
+  // const [roles, setRoles] = useState<Role[]>(initialRoles);
   const [openDialog, setOpenDialog] = useState(false);
   const [currentRole, setCurrentRole] = useState<Role | null>(null);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
-
+  const {data:roleResponse} = useQuery('roles',async()=>await roleService.getRoles());
+  const {data:availablePermissions} = useQuery('permissions',async()=>await roleService.getPermissions());
+  const roles =rolePipe(roleResponse)
+  console.log({roles})
   const handleOpenDialog = (role: Role | null = null) => {
-    setCurrentRole(role);
+     setCurrentRole(role);
     setOpenDialog(true);
   };
 
@@ -62,30 +74,41 @@ export default function RolePermissionManagement() {
     setCurrentRole(null);
   };
 
-  const handleSaveRole = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSaveRole =async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const newRole: Role = {
       id: currentRole ? currentRole.id : Date.now(),
       name: formData.get('name') as string,
-      permissions: availablePermissions
-        .filter(permission => formData.get(permission.id) === 'on')
-        .map(permission => permission.id),
+      permissions: availablePermissions?.filter(permission => formData.get(permission.id.toString()) === 'on')?.map(permission => permission.id.toString()) as string[]
     };
-
+   
     if (currentRole) {
-      setRoles(roles.map(role => role.id === currentRole.id ? newRole : role));
+      console.log({currentRole})
+      // setRoles(roles.map(role => role.id === currentRole.id ? newRole : role));
       setSnackbar({ open: true, message: 'Rôle modifié avec succès', severity: 'success' });
     } else {
-      setRoles([...roles, newRole]);
-      setSnackbar({ open: true, message: 'Nouveau rôle ajouté avec succès', severity: 'success' });
+      const createRoleDto:CreateRoleDto={
+        name:formData.get('name') as string,
+        description: formData.get('description') as string,
+        permissions: availablePermissions?.filter((permission)=>formData.get(permission.name)=='on')?.map((permission)=>permission.id)
+      }
+ 
+      await roleService.createRole(createRoleDto)
+      .then(()=>{
+        setSnackbar({ open: true, message: 'Nouveau rôle ajouté avec succès', severity: 'success' });
+      })
+      .catch((error)=>errorHandler(error))
+      console.log({createRoleDto})
     }
     handleCloseDialog();
   };
 
-  const handleDeleteRole = (id: number) => {
-    setRoles(roles.filter(role => role.id !== id));
-    setSnackbar({ open: true, message: 'Rôle supprimé avec succès', severity: 'success' });
+  const handleDeleteRole =async (id: number) => {
+    await roleService.deleteRole(id)
+    .then(()=>{
+      setSnackbar({ open: true, message: 'Rôle supprimé avec succès', severity: 'success' });
+    }).catch((error)=>errorHandler(error))
   };
 
   return (
@@ -137,7 +160,7 @@ export default function RolePermissionManagement() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {availablePermissions.map((permission) => (
+                  {availablePermissions?.map((permission) => (
                     <TableRow key={permission.id}>
                       <TableCell>{permission.name}</TableCell>
                       <TableCell>{permission.description}</TableCell>
@@ -164,17 +187,26 @@ export default function RolePermissionManagement() {
                 defaultValue={currentRole?.name || ''}
                 required
               />
+                <TextField
+                margin="dense"
+                name="description"
+                label="Description"
+                type="text"
+                fullWidth
+                variant="outlined"
+                defaultValue={currentRole?.description || ''}
+              />
               <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>Permissions :</Typography>
-              {availablePermissions.map((permission) => (
+              {availablePermissions?.map((permission) => (
                 <FormControlLabel
                   key={permission.id}
                   control={
                     <Checkbox
-                      name={permission.id}
-                      defaultChecked={currentRole?.permissions.includes(permission.id)}
+                      name={permission.name}
+                      defaultChecked={currentRole?.permissions.includes(permission.name)}
                     />
                   }
-                  label={permission.name}
+                  label={permission.name.toLowerCase()}
                 />
               ))}
             </DialogContent>

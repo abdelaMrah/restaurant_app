@@ -2,10 +2,11 @@ import { createContext, useEffect, useReducer } from "react";
 import { authReducer, initialState, User } from "../reducers/authReducer";
 // import FirebaseService from "../services/firebase.service";
  import { useNavigate } from "react-router-dom";
-import { LoginService } from "../pages/login/services/loginService";
-import Swal from "sweetalert2";
+ import Swal from "sweetalert2";
 import { errorHandler } from "../handlers/errorHandler";
-
+import loginSrvice from "../pages/login/services/login.service";
+import { AxiosError } from "axios";
+import loginService from "../pages/login/services/login.service";
  
 export const AuthContext = createContext<{
   isAuth?: boolean;
@@ -29,7 +30,7 @@ interface IProps {
 
 export const AuthContextProvider = ({ children }: IProps) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
-  const loginService =new LoginService();
+  // const loginService =new LoginService();
   const navigate = useNavigate();
 
   const user = state.auth?.user;
@@ -38,19 +39,21 @@ export const AuthContextProvider = ({ children }: IProps) => {
   const isAuth = state.auth?.isAuth;
 
   const handleLogin = async (email: string, password: string) => {
-   loginService.login({email,password})
+  await loginSrvice.login({email,password})
    .then((res)=>{
       navigate('')
       return res
    })
-   .then((res)=>{
-     Swal.fire({
-      title: `Bienvenue, ${res?.data?.user.username}!`,
+   .then((data)=>{
+      Swal.fire({
+      title: `Bienvenue, ${data.user.username}!`,
       text: "Vous êtes maintenant connecté.",
       icon: 'success',
       background: '#f0f9ff',
       confirmButtonColor: '#3085d6',
       confirmButtonText: 'Commencer!',
+      position:'bottom-end',
+      toast:true,
       customClass: {
         title: 'custom-title',
         popup: 'custom-popup'
@@ -78,8 +81,8 @@ export const AuthContextProvider = ({ children }: IProps) => {
   }, [isAuth, isSessionLoaded]);
  useEffect(()=>{
     const checkUser = async () => {
-      loginService.getSession()
-      .then(({data})=>{
+     await loginSrvice.getSession()
+      .then((data)=>{
         if(data){
           dispatch({
             type:'auth',
@@ -95,20 +98,48 @@ export const AuthContextProvider = ({ children }: IProps) => {
               }
             }
           })
-        }else{
-          dispatch({
-            type:'auth',
-            payload:{
-              auth:{
-                isAuth:false,
-                user:undefined
-              }
-            }
-          })
+        }
+        else{
+          
         }
       }).catch((e)=>{
-         errorHandler(e)
-
+         if(e instanceof AxiosError){
+          console.log({e})
+          if(e.status==401){
+            loginSrvice.refresh()
+            .then((res)=>{
+              console.log({res},'refetch ')
+              dispatch({
+                type:'auth',
+                payload:{
+                  auth:{
+                    isAuth:true,
+                    user:{
+                      userId:res.id,
+                      email:res.email,
+                      role:res.role.name,
+                      photoUrl:res.photoUrl
+                    }
+                  }
+                }
+              })
+            }).catch((e)=>{
+              if(e instanceof AxiosError){
+                if(e.status==401){
+                  dispatch({
+                    type:'auth',
+                    payload:{
+                      auth:{
+                        isAuth:false,
+                        user:undefined
+                      }
+                    }
+                  })
+                }
+              }
+            })
+          }
+        }
       })
       };
       
@@ -140,6 +171,8 @@ export const AuthContextProvider = ({ children }: IProps) => {
         background: '#fef9e7',
         confirmButtonColor: '#d33',
         confirmButtonText: 'À bientôt!',
+        position:'bottom-end',
+        toast:true,
         customClass: {
           title: 'custom-title',
           popup: 'custom-popup'

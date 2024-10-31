@@ -7,11 +7,12 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { UserModule } from 'src/user/user.module';
+import { RefreshStrategy } from './strategy/jwt.refresh.strategy';
 
 @Module({
   controllers: [AuthController],
   providers: [AuthService,PrismaService,UserService
-    ,JwtStrategy
+    ,JwtStrategy,RefreshStrategy
   ],
   imports:[
     JwtModule.register({
