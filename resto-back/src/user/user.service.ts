@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import {  Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -101,9 +101,9 @@ export class UserService {
     });
   }
 
-  async findOne(id: number) {
-    return await this.prisma.user.findUnique({where:{id}})
-  }
+  // async findOne(id: number) {
+  //   return await this.prisma.user.findUnique({where:{id}})
+  // }
   async findByEmaail(email:string){
     console.log({email})
     const user =await this.prisma.user.findUnique({where:{email}})
@@ -122,5 +122,6 @@ export class UserService {
   async remove(id: number) {
     return await this.prisma.user.delete({where:{id}})
   }
+  
 
 }

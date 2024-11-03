@@ -3,7 +3,8 @@ import {
   Box, Typography, Button, Card, CardContent,
   Chip, Dialog, DialogTitle, DialogContent, DialogActions,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  useTheme
+  useTheme,
+  Palette
 } from '@mui/material';
 import { DataGrid, GridColDef, GridRenderCellParams, GridToolbar } from '@mui/x-data-grid';
 import { Info as InfoIcon } from '@mui/icons-material';
@@ -61,7 +62,20 @@ const initialOrderHistory: Order[] = [
     total: 25.96
   },
 ];
-
+const getColor=(palette:Palette,status:Order['status']):string=>{
+  switch(status){
+    case 'Terminée':{
+      return palette.primary.light
+    }
+    case 'Annulée':{
+      return palette.error.main
+    }
+    default : {
+      return palette.grey[300]
+    }
+    
+  }
+}
 export default function OrderHistory() {
   const [orderHistory, _setOrderHistory] = useState<Order[]>(initialOrderHistory);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -112,7 +126,15 @@ export default function OrderHistory() {
       renderCell: (params: GridRenderCellParams) => (
         <Chip 
           label={params.value} 
+          variant='outlined'
           color={getStatusColor(params.value as Order['status'])}
+          sx={{
+            bgcolor:hexToRgba(
+              getColor(palette,params.value)
+              ,
+              0.1
+            )
+          }}
           size="small"
         />
       )
@@ -125,6 +147,8 @@ export default function OrderHistory() {
         <Button
           startIcon={<InfoIcon />}
           size="small"
+          variant='text'
+          sx={{bgcolor:hexToRgba(palette.primary.main,0.1)}}
           onClick={() => handleOpenDialog(params.row)}
         >
           Détails

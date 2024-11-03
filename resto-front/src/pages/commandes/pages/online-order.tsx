@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 
 
 import {
-  ThemeProvider, createTheme,
-  CssBaseline, Box, Typography, Paper, Tabs, Tab, Button,
+ Box, Typography, Paper, Tabs, Tab, Button,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Chip, IconButton, Dialog, DialogTitle, DialogContent, DialogActions,
-  List, ListItem, ListItemText, Divider, Badge, Snackbar
+  List, ListItem, ListItemText, Divider, Badge, Snackbar,
+  Palette,
+  useTheme
 } from '@mui/material';
 import {
   Visibility as VisibilityIcon,
@@ -16,18 +17,10 @@ import {
   Notifications as NotificationsIcon
 } from '@mui/icons-material';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
+import { hexToRgba } from '../../../utils/utils';
 
-// Thème cohérent avec le reste de l'application
-const theme = createTheme({
-  palette: {
-    primary: { main: '#FF6B6B' },
-    secondary: { main: '#4ECDC4' },
-    background: { default: '#F7F7F7' },
-  },
-  typography: {
-    fontFamily: 'Roboto, "Helvetica Neue", Arial, sans-serif',
-  },
-});
+
+ 
 
 interface OrderItem {
   id: number;
@@ -41,7 +34,7 @@ interface Order {
   customerName: string;
   items: OrderItem[];
   total: number;
-  status: 'new' | 'preparing' | 'ready' | 'delivered' | 'cancelled';
+  status: 'nouvelle' | 'preparing' | 'ready' | 'delivered' | 'cancelled';
   orderTime: string;
   deliveryAddress?: string;
 }
@@ -55,7 +48,7 @@ const initialOrders: Order[] = [
       { id: 2, name: "Frites", quantity: 2, price: 3.99 },
     ],
     total: 25.96,
-    status: 'new',
+    status: 'nouvelle',
     orderTime: "2023-05-01 18:30",
     deliveryAddress: "123 Rue de Paris, 75001 Paris"
   },
@@ -98,7 +91,7 @@ export default function OnlineOrders() {
   const [openDialog, setOpenDialog] = useState(false);
   const [notification, setNotification] = useState({ open: false, message: '' });
   const [newOrderCount, setNewOrderCount] = useState(0);
-
+  const {palette} = useTheme()
   useEffect(() => {
     // Simuler l'arrivée de nouvelles commandes
     const interval = setInterval(() => {
@@ -107,7 +100,7 @@ export default function OnlineOrders() {
         customerName: `Client ${orders.length + 1}`,
         items: [{ id: 1, name: "Nouveau Plat", quantity: 1, price: 15.99 }],
         total: 15.99,
-        status: 'new',
+        status: 'nouvelle',
         orderTime: new Date().toLocaleString(),
       };
       setOrders(prevOrders => [...prevOrders, newOrder]);
@@ -154,7 +147,7 @@ export default function OnlineOrders() {
   };
 
   const filteredOrders = orders.filter(order => {
-    if (currentTab === 0) return order.status === 'new';
+    if (currentTab === 0) return order.status === 'nouvelle';
     if (currentTab === 1) return order.status === 'preparing';
     if (currentTab === 2) return order.status === 'ready';
     return order.status === 'delivered' || order.status === 'cancelled';
@@ -162,17 +155,38 @@ export default function OnlineOrders() {
 
   const getStatusColor = (status: Order['status']) => {
     switch (status) {
-      case 'new': return 'error';
+      case 'nouvelle': return 'error';
       case 'preparing': return 'warning';
       case 'ready': return 'success';
       case 'delivered': return 'info';
       case 'cancelled': return 'default';
     }
   };
+  function getOrderColorStatus(palette:Palette,status:Order['status'] ):string{
+    switch(status){
+      case 'nouvelle':{
+        return palette.primary.light
+      };
+      case 'preparing':{
+        return palette.warning.light;
+      };
+      case 'ready':{
+        return palette.info.light;
+      };
+      case 'delivered':{
+        return palette.success.light;
+      };
+      case 'cancelled':{
+        return palette.error.light;
+      };
+      default :{
+        return  palette.grey[400];
+      };
+    }
+  }
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+   
       <Box sx={{ flexGrow: 1, p: 3 }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Commandes en Ligne
@@ -211,13 +225,22 @@ export default function OnlineOrders() {
                   <TableCell>{order.total.toFixed(2)} €</TableCell>
                   <TableCell>{order.orderTime}</TableCell>
                   <TableCell>
-                    <Chip label={order.status} color={getStatusColor(order.status)} />
+                    <Chip 
+                    label={order.status} 
+                    color={getStatusColor(order.status)} 
+                    variant='outlined'
+                    sx={{
+                      bgcolor:hexToRgba(getOrderColorStatus(palette,order.status),0.1),
+                      borderColor:getOrderColorStatus(palette,order.status),
+                      color:getOrderColorStatus(palette,order.status)
+                    }}
+                    />
                   </TableCell>
                   <TableCell>
                     <IconButton onClick={() => handleViewOrder(order)}>
                       <VisibilityIcon />
                     </IconButton>
-                    {order.status === 'new' && (
+                    {order.status === 'nouvelle' && (
                       <IconButton onClick={() => handleUpdateStatus(order.id, 'preparing')} color="primary">
                         <CheckIcon />
                       </IconButton>
@@ -227,7 +250,7 @@ export default function OnlineOrders() {
                         <LocalShippingIcon />
                       </IconButton>
                     )}
-                    {(order.status === 'new' || order.status === 'preparing') && (
+                    {(order.status === 'nouvelle' || order.status === 'preparing') && (
                       <IconButton onClick={() => handleUpdateStatus(order.id, 'cancelled')} color="error">
                         <CancelIcon />
                       </IconButton>
@@ -273,7 +296,7 @@ export default function OnlineOrders() {
               </DialogContent>
               <DialogActions>
                 <Button onClick={handleCloseDialog}>Fermer</Button>
-                {selectedOrder.status === 'new' && (
+                {selectedOrder.status === 'nouvelle' && (
                   <Button onClick={() => handleUpdateStatus(selectedOrder.id, 'preparing')} color="primary" variant="contained">
                     Commencer la préparation
                   </Button>
@@ -299,6 +322,5 @@ export default function OnlineOrders() {
           </Alert>
         </Snackbar>
       </Box>
-    </ThemeProvider>
-  );
+   );
 }

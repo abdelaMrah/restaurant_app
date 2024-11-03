@@ -5,6 +5,7 @@ import { Request } from "express";
 import { User } from "@prisma/client";
 import { PermissionService } from "src/user/permission/permission.service";
 import { Permissions } from "../entities/permissions.enum";
+import { PERMISSIONS } from "../decorators/Permissions";
 @Injectable()
  export class PermissionGuard implements CanActivate{
     constructor(
@@ -15,7 +16,7 @@ import { Permissions } from "../entities/permissions.enum";
      async canActivate(context: ExecutionContext){
       const isPublic = this.reflector.getAllAndOverride<boolean>('isPublic',[context.getHandler(),context.getClass()]);
        const requireRoles=this.reflector.getAllAndOverride<Roles[]>('roles',[context.getHandler(),context.getClass()]);
-      const requiredPermissions=this.reflector.getAllAndOverride<Permissions[]>('permissions',[context.getHandler(),context.getClass()])
+      const requiredPermissions=this.reflector.getAllAndOverride<Permissions[]>(PERMISSIONS,[context.getHandler(),context.getClass()])
         if(isPublic) return true
      
       const request:Request = context.switchToHttp().getRequest();

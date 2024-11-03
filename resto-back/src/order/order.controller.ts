@@ -12,7 +12,7 @@ import { Permissions } from 'src/auth/entities/permissions.enum';
 
 @UseGuards(AuthGuard('jwt'),RolesGuard,PermissionGuard)
 @Role(Roles.ADMIN,Roles.SERVER,Roles.MANAGER)
-@Permission(Permissions.TAKE_ORDERS)
+@Permission(Permissions.TAKE_ORDERS,Permissions.MANAGE_INVENTORY)
 @Controller('order')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
@@ -24,7 +24,7 @@ export class OrderController {
     return this.orderService.create(createOrderDto);
   }
 
-  @Permission(Permissions.TAKE_ORDERS)
+  @Permission(Permissions.TAKE_ORDERS,Permissions.MANAGE_INVENTORY)
   @Get()
   findAll() {
     return this.orderService.findAll();

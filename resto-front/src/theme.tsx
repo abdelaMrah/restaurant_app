@@ -1,9 +1,8 @@
-import {  PaletteMode, ThemeOptions } from "@mui/material";
+import {  colors, PaletteMode, ThemeOptions } from "@mui/material";
 
 
 
-// import type {} from '`@mui/x-data-grid`/themeAugmentation';
-
+ 
 export const themeSettings =(mode:PaletteMode):ThemeOptions=>{
  
  
@@ -20,8 +19,23 @@ export const themeSettings =(mode:PaletteMode):ThemeOptions=>{
             },
             h2:{
                 fontSize: '1.875rem',
+                color:palettes(mode).text.primary,
                 '@media (max-width:600px)': {
                     fontSize: '1.75rem',
+                },
+            },
+            h3:{
+                fontSize: '1.75rem',
+                color:palettes(mode).text.primary,
+                '@media (max-width:600px)': {
+                    fontSize: '1.5rem',
+                },
+            },
+            h4:{
+                fontSize: '1.65rem',
+                color:palettes(mode).text.primary,
+                '@media (max-width:600px)': {
+                    fontSize: '1.4rem',
                 },
             },
             body1: {
@@ -129,6 +143,25 @@ export const themeSettings =(mode:PaletteMode):ThemeOptions=>{
             //     },
             
             // },
+           MuiIcon:{
+            defaultProps:{
+                color:'primary'
+                // root:{
+                //     colors:palettes(mode).primary.light
+                // }
+
+            }
+           },
+           MuiListItemIcon:{
+            defaultProps:{
+                color:palettes(mode).primary.light
+            }
+           },
+            MuiListItem:{
+                defaultProps:{
+                    color:palettes(mode).primary.light
+                }
+            },
             MuiButton:{
                 styleOverrides: {
                   root: {
@@ -152,11 +185,11 @@ export const themeSettings =(mode:PaletteMode):ThemeOptions=>{
                   contained: {
                     boxShadow: 'none', 
                     backgroundColor:palettes(mode).primary.light,
-                    color:palettes(mode).secondary.main,
+                    color:palettes(mode).grey[50],
                     '&:hover': {
                     
                       backgroundColor:palettes(mode).primary.main,
-                      color:palettes(mode).secondary.light,
+                      color:palettes(mode).grey[50],
                     },
                   },
                   outlined: {
@@ -168,6 +201,16 @@ export const themeSettings =(mode:PaletteMode):ThemeOptions=>{
                   },
                 },
               },
+            MuiIconButton:{
+                defaultProps:{
+                },
+                styleOverrides:{
+                    root:{
+                    color:palettes(mode).text.primary,
+                    },
+                },
+                
+            }
         }
         
     }
@@ -186,10 +229,10 @@ export const themeSettings =(mode:PaletteMode):ThemeOptions=>{
             contrastText:'#14145a'
         },
         secondary:{
-            main:'#FFD700',
-            light:'#ffdf33',
-            dark:'#ccac00',
-            contrastText:'#FFD700'
+            main: '##C327AB', 
+            light: '#E147CAFF', 
+            dark: '#9A1285FF',
+            contrastText: '#C327AB',
         },
         background:{
             default:'#EDF1F1FF',
@@ -201,7 +244,7 @@ export const themeSettings =(mode:PaletteMode):ThemeOptions=>{
             disabled:'#9C9A9AFF4'
         },
         grey:{
-            50:'#8A5252FF',
+            50:'#F5F4F4FF',
             100: "#e7e7e7",
             200: "#cfcfcf",
             300: "#b8b8b8",

@@ -2,7 +2,6 @@ import React, { useContext, useState } from 'react';
 import { Box, Typography, TextField, Button, Checkbox, FormControlLabel, Link, Paper, Avatar } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { AuthContext } from '../../context/authContext';
-
 export default function Login() {
   const authContext = useContext(AuthContext)
   const [email, setEmail] = useState('');
@@ -45,7 +44,7 @@ export default function Login() {
       setPasswordError('Le mot de passe doit contenir au moins 6 caractères');
       isValid = false;
     }
-
+  
      if (isValid) {
       console.log('Email:', email);
       console.log('Password:', password);

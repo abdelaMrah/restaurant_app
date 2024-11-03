@@ -11,16 +11,16 @@ import dayjs, { Dayjs } from 'dayjs';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 
 // Thème cohérent avec le reste de l'application
-const theme = createTheme({
-  palette: {
-    primary: { main: '#FF6B6B' },
-    secondary: { main: '#4ECDC4' },
-    background: { default: '#F7F7F7' },
-  },
-  typography: {
-    fontFamily: 'Roboto, "Helvetica Neue", Arial, sans-serif',
-  },
-});
+// const theme = createTheme({
+//   palette: {
+//     primary: { main: '#FF6B6B' },
+//     secondary: { main: '#4ECDC4' },
+//     background: { default: '#F7F7F7' },
+//   },
+//   typography: {
+//     fontFamily: 'Roboto, "Helvetica Neue", Arial, sans-serif',
+//   },
+// });
 
 interface OpeningHours {
   [key: string]: {
@@ -88,7 +88,7 @@ export default function RestaurantSettings() {
   };
 
   return (
-    <ThemeProvider theme={theme}>
+    
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <CssBaseline />
         <Box sx={{ flexGrow: 1, p: 3 }}>
@@ -181,6 +181,7 @@ export default function RestaurantSettings() {
                           label="Ouverture"
                           value={hours.open}
                           onChange={(newValue) => handleOpeningHoursChange(day, 'open', newValue)}
+                          ampm={false}
                         />
                       </Grid>
                       <Grid item>
@@ -235,6 +236,6 @@ export default function RestaurantSettings() {
           </Snackbar>
         </Box>
       </LocalizationProvider>
-    </ThemeProvider>
+    
   );
 }

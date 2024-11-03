@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
  import { DishModule } from './dish/dish.module';
 import { OrderModule } from './order/order.module';
 import { UserModule } from './user/user.module';
@@ -11,6 +11,7 @@ import { OrderItemModule } from './order-item/order-item.module';
 import { EmployeModule } from './employe/employe.module';
 import { AbdcenceModule } from './abbsence/absence.module';
 import { AdvanceModule } from './advance/advance.module';
+import { PermissionsMiddleware } from './permissions/permissions.middleware';
  
 @Module({
   imports: [
@@ -32,4 +33,10 @@ import { AdvanceModule } from './advance/advance.module';
     
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(PermissionsMiddleware)
+      .forRoutes('*')
+  }
+}

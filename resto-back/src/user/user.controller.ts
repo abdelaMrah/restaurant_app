@@ -6,19 +6,25 @@ import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/auth/guard/role.guard';
 import { Role } from 'src/auth/decorators/Roles';
 import { Roles } from 'src/auth/entities/role.enum';
-import { CreateRoleDto, RoleService } from './role/role.service';
+import { CreateRoleDto, RoleService, UpdateRoleDto } from './role/role.service';
 import { PermissionGuard } from 'src/auth/guard/permission.guard';
 import { Permission } from 'src/auth/decorators/Permissions';
 import { Permissions } from 'src/auth/entities/permissions.enum';
 import { getUser } from 'src/auth/decorators/get-user.decorator';
 import { User } from '@prisma/client';
-@UseGuards(AuthGuard('jwt'),RolesGuard,PermissionGuard)
-@Permission(Permissions.MANAGE_STAFF)
-@Role(Roles.ADMIN,Roles.MANAGER)
-@Permission(Permissions.MANAGE_STAFF)
+import { PermissionService } from './permission/permission.service';
+// @UseGuards(AuthGuard('jwt'),RolesGuard,PermissionGuard)
+// @Permission(Permissions.MANAGE_STAFF)
+// @Role(Roles.ADMIN,Roles.MANAGER)
+// @Permission(Permissions.MANAGE_STAFF)
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService,private readonly roleService:RoleService) {}
+  constructor(private readonly userService: UserService,private readonly roleService:RoleService,
+    private readonly permissionService:PermissionService
+  ) {}
+
+  @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  @Permission(Permissions.MANAGE_STAFF)
 
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
@@ -31,10 +37,7 @@ export class UserController {
     return this.userService.findAll();
   }
  
-  @Get('permissions')
-  getPermissions(){
-    return this.roleService.getPermissions();
-  }
+ 
 
   // @Get(':id')
   // findOne(@Param('id') id: string) {
@@ -61,7 +64,16 @@ export class UserController {
     }
     return me
   }
-
+  @Get('permissions')
+  getPermissions(){
+    return this.roleService.getPermissions();
+  }
+  @UseGuards(AuthGuard('jwt'))
+  @Get('permissions/role')
+  async getPermissionsByRole(@getUser() user:User ){
+    const permissions = await this.permissionService.getPermissionByRoleId(user.roleId);
+    return permissions
+  }
 
   @Get('roles')
   getRoles(){
@@ -75,5 +87,10 @@ export class UserController {
   @Delete('roles/:id')
   deleteRole(@Param('id',ParseIntPipe) id:number){
     return this.roleService.deleteRole(id); 
+  }
+
+  @Patch('roles/:id')
+  async updateRole(@Param('id') id:string,@Body() updateRoleDto:UpdateRoleDto){
+     return await this.roleService.updateRole(+id,updateRoleDto);
   }
 }

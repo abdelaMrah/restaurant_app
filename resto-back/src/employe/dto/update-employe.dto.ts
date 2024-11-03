@@ -1,4 +1,9 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateEmployeDto } from './create-employe.dto';
 
-export class UpdateEmployeDto extends PartialType(CreateEmployeDto) {}
+import {  Salary } from './create-employe.dto';
+import { UpdateUserDto } from 'src/user/dto/update-user.dto';
+
+export class UpdateEmployeDto  {
+    updateUserDto?:Omit<UpdateUserDto,'roleId'>&{roleId:number}
+    salary?: Salary;
+
+}

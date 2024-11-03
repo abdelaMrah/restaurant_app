@@ -1,5 +1,12 @@
  import ApiService from "../../../api/ApiService";
-
+import { UpdateUserDto } from "./user.service";
+export interface UpdateEmployeDto{
+    salary?:{
+      amount?:number,
+      paidDate?:Date
+    },
+    user?:UpdateUserDto
+  }
 export interface Salary{}
 export interface CreateSalaryDto{} 
 export type UpdateSalaryDto=Partial<CreateSalaryDto>

@@ -1,5 +1,5 @@
 import ApiService from "../../../api/ApiService";
-import { Role } from "./role.service";
+import {  RoleResponse } from "./role.service";
 export interface User{
     id: number;
     username: string;
@@ -8,9 +8,10 @@ export interface User{
     email: string;
     password: string;
     phone:string;
-    role:Role
+    role:Omit<RoleResponse,'rolePermissions'>
     photoUrl: string | null;
-    status:'Actif'|'Inactif'
+    status:'Actif'|'Inactif';
+    startDate?:string
 
 }
  

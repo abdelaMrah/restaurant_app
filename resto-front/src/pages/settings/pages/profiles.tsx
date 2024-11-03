@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
    Box, Typography, Button, TextField, Avatar,
   Grid, Paper, Switch,  Snackbar,
   List, ListItem, ListItemIcon, ListItemText, ListItemSecondaryAction,
-  IconButton
+  IconButton,
+  useTheme
 } from '@mui/material';
 import {
   Person as PersonIcon,
@@ -17,6 +18,7 @@ import {
   Cancel as CancelIcon
 } from '@mui/icons-material';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
+import { appContext } from '../../../context/appContext';
 
 
 interface UserProfile {
@@ -57,11 +59,12 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
 });
 
 export default function UserProfileAndSettings() {
+  const {palette} = useTheme()
   const [profile, setProfile] = useState<UserProfile>(initialProfile);
   const [settings, setSettings] = useState<UserSettings>(initialSettings);
   const [editMode, setEditMode] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
-
+const {mode,setMode} = useContext(appContext)
   const handleProfileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     setProfile({ ...profile, [name]: value });
@@ -221,8 +224,8 @@ export default function UserProfileAndSettings() {
                     <Switch
                       edge="end"
                       name="darkMode"
-                      checked={settings.darkMode}
-                      onChange={handleSettingsChange}
+                      checked={mode==='dark'}
+                      onChange={()=>setMode(mode==='dark'?'light':'dark')}
                     />
                   </ListItemSecondaryAction>
                 </ListItem>

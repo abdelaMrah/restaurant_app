@@ -17,3 +17,62 @@
     // Retourne la couleur en format rgba
     return `rgba(${r}, ${g}, ${b}, ${opacity})`;
   }
+
+
+  export function formatDateOrDateTime(dateString: string | null | undefined): string {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return ''; // Retourne une chaîne vide si la date est invalide
+  
+    // Vérifie si la chaîne d'origine contient une heure
+    const hasTime = dateString.includes('T') || dateString.includes(' ');
+  
+    if (hasTime) {
+      // Format datetime-local : YYYY-MM-DDThh:mm
+      return date.toISOString().slice(0, 16);
+    } else {
+      // Format date : YYYY-MM-DD
+      return date.toISOString().slice(0, 10);
+    }
+  }
+
+
+  export 
+  function formatDateOnly(dateString: string | null | undefined): string {
+    if (!dateString) return '';
+    
+    let date: Date;
+    try {
+      // Tente de créer un objet Date à partir de la chaîne
+      date = new Date(dateString);
+      
+      // Vérifie si la date est valide
+      if (isNaN(date.getTime())) {
+        console.error('Date invalide:', dateString);
+        return '';
+      }
+      
+      // Formate la date en YYYY-MM-DD, en utilisant UTC pour éviter les problèmes de fuseau horaire
+      return date.toISOString().split('T')[0];
+    } catch (error) {
+      console.error('Erreur lors du traitement de la date:', error);
+      return '';
+    }
+  }
+
+
+
+
+
+  export function hashStringToColor(str:string) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+     let color = "#";
+    for (let i = 0; i < 3; i++) {
+        const value = (hash >> (i * 8)) & 0xFF;
+        color += ('00' + value.toString(16)).slice(-2);
+    }
+    return color;
+}

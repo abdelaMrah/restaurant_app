@@ -6,6 +6,7 @@ export interface CreateRoleDto{
     description:string;
     permissions?:number[]
 }
+export type UpdateRoleDto =Partial<CreateRoleDto>
 @Injectable()
 export class RoleService {
     constructor(
@@ -43,13 +44,33 @@ export class RoleService {
     getPermissions(){
         return this.prisma.permission.findMany();
     }
+   async getUserPermission(roleId:number){
+        const permissions = await this.prisma.rolePermission.findMany({
+            where:{
+                roleId:roleId
+            },include:{
+                permission:true
+            }
+        })
+        const resPermissions = permissions.reduce((acc:any[],cur)=>{
+            acc.push(cur.permission)
+            return acc;
+        },[])
+        return resPermissions;
+
+    }
     getRoleId(id:number){
         return this.prisma.role.findUnique({where:{id}})
     }   
     async deleteRole(id:number){
         try {
-           
-            await this.prisma.role.delete({where:{id}})
+            await this.prisma.rolePermission.deleteMany({
+                where:{roleId:id}
+            });
+            await this.prisma.role.delete({
+                where:{id},
+                // include:{rolePermissions:true}
+            })
         } catch (error) {
             throw error
         }
@@ -59,9 +80,7 @@ export class RoleService {
             where:{
                 roleId
             },
-            include:{
-                permission:true
-            }
+           
         })
     }
     async getPermissionRole(id:number){
@@ -79,5 +98,33 @@ export class RoleService {
            
            
         })
+    }
+    async updateRole(id:number,updateRoleDto:UpdateRoleDto){
+        await this.prisma.rolePermission.deleteMany({
+            where:{
+                roleId:id
+            }
+        });
+        console.log({
+             id,
+            updateRoleDto
+        })
+        const role =await this.prisma.role.update({
+            where:{id:+id},
+            data:{
+                name:updateRoleDto.name,
+                description:updateRoleDto.description,
+                rolePermissions:{  
+                   createMany:{
+                    data:updateRoleDto.permissions.map((permissionId)=>{
+                        return{
+                            permissionId
+                        }
+                    })
+                   }
+                }
+            }
+        })
+        return role
     }
 }

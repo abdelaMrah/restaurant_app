@@ -17,7 +17,8 @@ export class JwtStrategy extends PassportStrategy(Strategy,'jwt') {
                 jwtFromRequest: ExtractJwt.fromExtractors([(req:Request)=>{
                     let data =req?.cookies['auth-token']
                       if(!data){
-                        console.log("token n'exist this.pas")
+                        console.log("token n'exist this.pas");
+                        console.log({data})
                         return null
                     } 
                     

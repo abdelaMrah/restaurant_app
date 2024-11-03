@@ -61,6 +61,16 @@ class RoleService {
         throw error;
     }
   }
+  public async getRolePermissions(){
+    try {
+      const response = await this.apiService
+        .getInstance()
+        .get<any[]>(`/user/permissions/role`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
   public async deleteRole(id:number){
     try {
         const response =await this.apiService.getInstance().delete<RoleResponse>(`/user/roles/${id}`)

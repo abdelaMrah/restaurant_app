@@ -21,7 +21,7 @@ export class RefreshStrategy  extends PassportStrategy(Strategy,'refresh') {
                 jwtFromRequest: ExtractJwt.fromExtractors([(req:Request)=>{
                     let data =req?.cookies['auth-token']
                     if(!data){
-                        console.log(req.cookies)
+                        
                         return null
                     }
                       return data.refresh_token

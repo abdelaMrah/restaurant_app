@@ -1,17 +1,19 @@
-import { createContext, useEffect, useReducer } from "react";
+import { createContext, useEffect, useMemo, useReducer } from "react";
 import { authReducer, initialState, User } from "../reducers/authReducer";
-// import FirebaseService from "../services/firebase.service";
- import { useNavigate } from "react-router-dom";
- import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import { errorHandler } from "../handlers/errorHandler";
 import loginSrvice from "../pages/login/services/login.service";
 import { AxiosError } from "axios";
 import loginService from "../pages/login/services/login.service";
+import { useQuery } from "react-query";
+import roleService from "../pages/users/services/role.service";
  
 export const AuthContext = createContext<{
   isAuth?: boolean;
   isSessionLoaded: boolean;
   user?: User;
+  userPermissions?:string[];
   handleLogin: (email: string, password: string) => void;
   handleLogout:()=>void;
 
@@ -19,6 +21,7 @@ export const AuthContext = createContext<{
   isAuth: false,
   isSessionLoaded: false,
   user: undefined,
+  
   handleLogin: () => {},
   handleLogout:()=>{},
 
@@ -59,12 +62,6 @@ export const AuthContextProvider = ({ children }: IProps) => {
         popup: 'custom-popup'
       }
     });
-    // Swal.fire({
-    //   title:'login',
-    //   timer:3000,
-    //   icon:'success',
-    //   position:'bottom-left'
-    // })
    })
    .catch((e)=>{
     console.log({e})
@@ -79,6 +76,13 @@ export const AuthContextProvider = ({ children }: IProps) => {
         if(isSessionLoaded) navigate("/login")
     };
   }, [isAuth, isSessionLoaded]);
+
+  // const roleId = user?.role.id as number;
+  const {data:permissions} =useQuery(['permissions-user'],async ()=> await roleService.getRolePermissions()) ;
+  const userPermissions =useMemo(()=>{
+    return permissions?.map(({permission})=>permission?.name as string)
+  },[permissions])
+ 
  useEffect(()=>{
     const checkUser = async () => {
      await loginSrvice.getSession()
@@ -103,8 +107,9 @@ export const AuthContextProvider = ({ children }: IProps) => {
           
         }
       }).catch((e)=>{
+        console.log({e})
+
          if(e instanceof AxiosError){
-          console.log({e})
           if(e.status==401){
             loginSrvice.refresh()
             .then((res)=>{
@@ -124,6 +129,8 @@ export const AuthContextProvider = ({ children }: IProps) => {
                 }
               })
             }).catch((e)=>{
+              console.log({e})
+
               if(e instanceof AxiosError){
                 if(e.status==401){
                   dispatch({
@@ -137,14 +144,27 @@ export const AuthContextProvider = ({ children }: IProps) => {
                   })
                 }
               }
-            })
+            });
+           
           }
+        }
+        if(e.status==403){
+          dispatch({
+            type:'auth',
+            payload:{
+              auth:{
+                isAuth:false,
+                user:undefined
+              }
+            }
+          })
+          // navigate('/unauthorized')
         }
       })
       };
       
       checkUser();
-  },[isAuth])
+  },[isAuth,isSessionLoaded])
   // },[])
 
   const handleLogout=async()=>{
@@ -194,7 +214,7 @@ export const AuthContextProvider = ({ children }: IProps) => {
   }
   return (
     <Provider
-      value={{ isAuth, isSessionLoaded, user, handleLogin, handleLogout}}
+      value={{ isAuth, isSessionLoaded, user, handleLogin, handleLogout,userPermissions}}
     >
       {children}
     </Provider>

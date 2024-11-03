@@ -5,6 +5,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { User } from '@prisma/client';
+import { UpdateUserDto } from 'src/user/dto/update-user.dto';
 @Injectable()
 export class EmployeService {
   constructor(private readonly prisma:PrismaService,private readonly userService:UserService){}
@@ -73,28 +74,31 @@ export class EmployeService {
     })
   }
 
-  update(id: number, updateEmployeDto: UpdateEmployeDto) {
-    // return this.prisma.employee.update({
-    //   where:{id},
-    //   data:updateEmployeDto,
-    //   select:{
-    //     id:true,
-    //     user:{
-    //       select:{
-    //         id:true,
-    //         email:true,
-    //         username:true,
-    //         status:true,
-    //         phone:true,
-    //       }
-    //     },
-    //     salary:true,
-    //     advances:true
-    //   }
-    // })
-  }
+
 
   remove(id: number) {
     return this.prisma.employee.delete({where:{id}})
   }
+
+  async update(id: number, updateEmployeDto: UpdateEmployeDto) {
+    return this.prisma.employee.update({
+      where:{id},
+      data:{
+        salary:{
+          update: updateEmployeDto.salary
+        },
+        user:{
+          update:updateEmployeDto.updateUserDto,
+          
+        },  
+      }
+    })
+  }
+}
+export interface UpdateEmployeDto2{
+  salary?:{
+    amount?:number,
+    paidDate?:Date
+  },
+  user?:UpdateUserDto
 }

@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import {
   Box, Typography, Button, Dialog, DialogTitle, DialogContent,
   DialogActions, TextField,
-  Snackbar, IconButton, Tooltip, Paper
+  Snackbar, IconButton, Tooltip, Paper,
+  useTheme
 } from '@mui/material';
 import { DataGrid, GridColDef, GridRenderCellParams, GridToolbar } from '@mui/x-data-grid';
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, Warning as WarningIcon } from '@mui/icons-material';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
+import { hexToRgba } from '../../../utils/utils';
 
  
 interface InventoryItem {
@@ -40,7 +42,7 @@ export default function InventoryManagement() {
   const [openDialog, setOpenDialog] = useState(false);
   const [currentItem, setCurrentItem] = useState<InventoryItem | null>(null);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
-
+  const {palette} = useTheme()
   const handleOpenDialog = (item: InventoryItem | null = null) => {
     setCurrentItem(item);
     setOpenDialog(true);
@@ -184,7 +186,7 @@ export default function InventoryManagement() {
           sx={{
             '& .MuiDataGrid-toolbarContainer': {
               padding: '8px',
-              backgroundColor: 'rgba(255, 107, 107, 0.08)',
+              backgroundColor: hexToRgba(palette.primary.light,0.4),
             },
             '& .MuiButton-root': {
               color: 'primary.main',

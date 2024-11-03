@@ -1,5 +1,4 @@
 import { createBrowserRouter, Outlet } from "react-router-dom";
-import SideBar from "./Layouts/SideBar";
 import { Commandes } from "./pages/commandes/Commandes";
 import NewOrder from "./pages/commandes/pages/nouvel_commande";
 import CurrentOrders from "./pages/commandes/pages/CommandeList";
@@ -22,12 +21,19 @@ import RolePermissionManagement from "./pages/users/pages/role-permission";
 import { Analytics } from "./pages/analytics/Analytics";
 import AnalyticsDashboard from "./pages/analytics/pages/analytics-dashboard";
 import PeakHoursAnalysis from "./pages/analytics/pages/peak-hours";
-import RestaurantSettings from "./pages/settings/restaurant-setting";
+import RestaurantSettings from "./pages/settings/pages/restaurant-setting";
 import OnlineOrders from "./pages/commandes/pages/online-order";
 import { Table } from "./pages/tables/Tables";
 import RestaurantTables from "./pages/tables/pages/RestaurantTables";
 import SalaryManagement from "./pages/users/pages/salary.management";
 import Sidebar from "./Layouts/SideBar2";
+import OrderDashboard from "./pages/commandes/pages/dashboard";
+import MenuDashboard from "./pages/menu/pages/dashboard";
+import InventoryDashboard from "./pages/inventory/pages/dasboard";
+import EmployeeDashboard from "./pages/users/pages/dashboard";
+import UnauthorizedPage from "./pages/common/unauthorized";
+import PermissionGuard from "./Layouts/PermissionsGuard";
+
  
 export const routers= createBrowserRouter([
    {
@@ -38,7 +44,7 @@ export const routers= createBrowserRouter([
     children:[
         {
             path:'',
-            element:<SideBar/>,
+            element:<Sidebar/>,
             children:[
                 {
                     path:'',
@@ -46,10 +52,17 @@ export const routers= createBrowserRouter([
                 },
                 {
                     path:'commandes',
-                    element:<Commandes/>,
+                    element:
+                    <PermissionGuard>
+                        <Commandes/>,
+                     </PermissionGuard>,
                     children:[
                         {
-                            path:'',
+                            path:"",
+                            element:<OrderDashboard/>
+                        },
+                        {
+                            path:'en-cours',
                             element:<CurrentOrders/>
                         },
                         {
@@ -72,7 +85,7 @@ export const routers= createBrowserRouter([
                     children:[
                         {
                             path:'',
-                            element:<></>,
+                            element:<PermissionGuard><MenuDashboard/></PermissionGuard>,
                         },
                         {
                             path:'management',
@@ -86,7 +99,7 @@ export const routers= createBrowserRouter([
                     children:[
                         {
                             path:'',
-                            element:<></>
+                            element:<InventoryDashboard/>
                         },
                         {
                             path:'management',
@@ -104,10 +117,14 @@ export const routers= createBrowserRouter([
                 },
                 {
                     path:'users',
-                    element:<Users/>,
+                    element:<PermissionGuard><Users/></PermissionGuard>,
                     children:[
                         {
                             path:'',
+                            element:<EmployeeDashboard/>
+                        },
+                        {
+                            path:'staff',
                             element:<StaffManagement/>
                         },
                         {
@@ -170,9 +187,14 @@ export const routers= createBrowserRouter([
             element:<Login/>
         },
         {
-            path:'sidebar',
-            element:<Sidebar onClose={()=>{} } open={false}/>
+            path:'unauthorized',
+            element:<UnauthorizedPage/>
         }
     ]
-   }
+}
 ])
+// {
+//     path:'sidebar',
+//     element:<Sidebar />,
+   
+// }

@@ -32,10 +32,6 @@ import {
       useEffect, useState } from 'react';
   import { AuthContext } from '../context/authContext';
   import MobileNav from './MobileNav';
-  
-  
-  
-  
   const drawerWidth = 200;
   const collapsedDrawerWidth = 50; 
   
@@ -105,14 +101,6 @@ import {
   export default function SideBar() {
     const theme = useTheme();
     const authContext = useContext(AuthContext);
-    // const authContext = {
-    //     handleLogout:()=>{},
-    //     user:{
-    //         email:'abdela@email.com',
-    //         photoUrl:'',
-
-    //     }
-    // }
     const location = useLocation();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [drawerExpanded, setDrawerExpanded] = useState(false); 
@@ -148,7 +136,6 @@ import {
             src={`${authContext.user?.photoUrl}`}
             sx={{ width: 40, height: 40 }}
           />
-         
         </Toolbar>
            {
             drawerExpanded ?(

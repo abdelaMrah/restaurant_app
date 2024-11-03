@@ -495,7 +495,8 @@ import orderService, { CreateOrderDto, OrderItemDto,OrderType } from '../service
 import { AuthContext } from '../../../context/authContext';
 import Swal from 'sweetalert2';
 import { errorHandler } from '../../../handlers/errorHandler';
-
+import { useNavigate } from 'react-router-dom';
+import hamburger from '../../../../public/images/hamburger-du-fromage-tomates_1028566-62164-removebg-preview.png'
 interface MenuItem {
   id: number;
   name: string;
@@ -546,7 +547,7 @@ export default function NewOrder() {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([])
   const {data:menu,refetch:refetchMenu} = useQuery('menu',async()=>await menuService.getMenu())
   const authContext = useContext(AuthContext);
-
+  const navigate = useNavigate();
   useEffect(()=>{
     setMenuItems(menuPipe(menu))
   },[menu])
@@ -596,7 +597,7 @@ export default function NewOrder() {
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
   };
-  const handleCalidateCommande =async()=>{
+  const handleValidateCommande =async()=>{
     if(authContext.user?.userId){
       const createOrderDto:CreateOrderDto={
         userId:+authContext.user?.userId,
@@ -605,19 +606,22 @@ export default function NewOrder() {
       }
       await orderService.createOrder(createOrderDto)
       .then(()=>{
+        handleCloseDialog();
+        navigate('/commandes/en-cours')
+
+      }).then(()=>{
         Swal.fire({
           title:'commande validee',
           icon:'success',
           toast:true
         })
-      }).then(()=>{
         refetchMenu()
       }).catch((error)=>errorHandler(error))
     }
   }
   const renderOrderContent = () => (
     order.length === 0 ? null : (
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, flex:1, }}>
         {order.map(item => {
           const menuItem = menuItems.find(mi => mi.id === item.dishId);
           return menuItem ? (
@@ -627,10 +631,15 @@ export default function NewOrder() {
               justifyContent: 'space-between', 
               alignItems: 'center',
               borderRadius: 2,
-              boxShadow: theme.shadows[1]
+              boxShadow: theme.shadows[1],
+              flex1:1
+
             }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <img src={menuItem.image} alt={menuItem.name} style={{ width: 40, height: 40, marginRight: 8, borderRadius: 4 }} />
+                <img 
+                // src={menuItem.image}
+                src={hamburger}
+                 alt={menuItem.name} style={{ width: 40, height: 40, marginRight: 8, borderRadius: 4 }} />
                 <Box>
                   <Typography variant="body2" sx={{ fontWeight: 'bold', fontSize: { xs: '0.8rem', sm: '1rem' } }}>
                     {menuItem.name}
@@ -662,24 +671,16 @@ export default function NewOrder() {
     <Box sx={{ 
       flexGrow: 1, 
       p: { xs: 1, sm: 2, md: 3 },  
-      height: '100vh', 
       overflow: 'hidden', 
-      bgcolor: theme.palette.background.default 
+      bgcolor: theme.palette.background.paper 
     }}>
-      {/* <Typography variant="h4" component="h1" gutterBottom sx={{ 
-        fontWeight: 'bold', 
-        color: theme.palette.primary.main,
-        mb: 2,
-        fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' }
-      }}>
-        Nouvelle Commande
-      </Typography> */}
+  
       
       <Box sx={{ 
         display: 'flex', 
         flexDirection: { xs: 'column', md: 'row' }, 
         gap: 2, 
-        height: isMobile?'calc(100vh - 60px)':'calc(100vh - 120px)',
+        height: isMobile?'calc(100vh - 60px)':'calc(100vh - 80px)',
         overflow:isMobile?'hidden':'auto'
       }}>
         <Card sx={{ 
@@ -749,7 +750,7 @@ export default function NewOrder() {
                         cursor: 'pointer',
                         '&:hover': { 
                           transform: 'translateY(-3px)',
-                          boxShadow: theme.shadows[4]
+                          boxShadow: theme.shadows[2]
                         }
                       }}
                       onClick={() => addToOrder(item.id)}
@@ -757,7 +758,7 @@ export default function NewOrder() {
                       <CardMedia
                         component="img"
                         height={isMobile ? "80" : "120"}
-                        image={item.image}
+                        image={hamburger}
                         alt={item.name}
                       />
                       <CardContent sx={{ flexGrow: 1, p: 1 }}>
@@ -779,7 +780,7 @@ export default function NewOrder() {
         {!isMobile && (
           <Card sx={{ 
             flex: { xs: 1, md: 0.5 }, 
-            boxShadow: theme.shadows[3], 
+            boxShadow: theme.shadows[1], 
             borderRadius: 2,
             display: 'flex',
             flexDirection: 'column'
@@ -806,7 +807,9 @@ export default function NewOrder() {
               ) : renderOrderContent()}
             </CardContent>
             <Divider />
-            <Box sx={{ p: 2, bgcolor: theme.palette.background.paper }}>
+            <Box sx={{ p: 2,
+               
+               }}>
               <Typography variant="h6" sx={{ mb: 2, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
                 Total: <strong>{getOrderTotal()} DA</strong>
               </Typography>
@@ -822,11 +825,11 @@ export default function NewOrder() {
                   '&:hover': { 
                     bgcolor: theme.palette.primary.dark,
                     transform: 'translateY(-2px)',
-                    boxShadow: theme.shadows[4]
+                    boxShadow: theme.shadows[1]
                   },
                   fontSize: { xs: '0.875rem', sm: '1rem' }
                 }}
-                onClick={handleCalidateCommande}
+                onClick={handleValidateCommande}
               >
                 Valider la commande
               </Button>
@@ -893,11 +896,11 @@ export default function NewOrder() {
                   '&:hover': { 
                     bgcolor: theme.palette.primary.dark,
                     transform: 'translateY(-2px)',
-                    boxShadow: theme.shadows[4]
+                    boxShadow: theme.shadows[1]
                   },
                   fontSize: { xs: '0.875rem', sm: '1rem' }
                 }}
-                onClick={handleCalidateCommande}
+                onClick={handleValidateCommande}
               >
                 Valider la commande
               </Button>

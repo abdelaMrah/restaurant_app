@@ -1,27 +1,25 @@
 import { RouterProvider } from "react-router-dom"
 import { routers } from "./routers"
 import { Box, createTheme, ThemeProvider } from "@mui/material"
-import { useEffect, useMemo, useState } from "react";
+import {  useContext, useEffect, useMemo } from "react";
 import {themeSettings} from './theme'
-import axios from "axios";
+import { appContext } from "./context/appContext";
+import { hashStringToColor } from "./utils/utils";
+
  
- const getUsers =async ()=>{
-    const res = await axios.get('/api/user')
-    return res.data
- }
+ 
 function App() {
-  const [data, setData] = useState<any|undefined>(undefined)
-  useEffect(()=>{
-    getUsers().then((res)=>setData(res))
-    
-  },[getUsers])
-  useEffect(()=>{
-    console.log({data})
-  },[data])
-// const theme = createTheme();
-const theme = useMemo(()=>createTheme(themeSettings('light')) ,[])
+const {mode} = useContext(appContext)
+ 
+console.log({color:hashStringToColor('hello abdellah')})
+
+ const theme = useMemo(()=>createTheme(themeSettings(mode)) ,[mode])
+
+ useEffect(() => {
+  document.body.style.backgroundColor = theme.palette.background.default;
+}, [mode]);
   return (
-    <Box width={'100%'} height={'100%'}>
+    <Box width={'100%'} height={'100%'} >
         <ThemeProvider theme={theme} >
           <RouterProvider router={routers}/>
         </ThemeProvider>

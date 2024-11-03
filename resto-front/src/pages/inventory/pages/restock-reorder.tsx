@@ -149,7 +149,11 @@ export default function RestockOrderManagement() {
       renderCell: (params: GridRenderCellParams) => (
         <Chip 
           label={params.value} 
+          variant='outlined'
           color={params.value === 'En attente' ? 'warning' : params.value === 'Commandé' ? 'info' : 'success'}
+          sx={{
+            bgcolor:hexToRgba(params.value === 'En attente' ? palette.warning.light:params.value==='Commandé' ? palette.info.light:palette.success.light,0.1)
+          }}
         />
       ),
     },

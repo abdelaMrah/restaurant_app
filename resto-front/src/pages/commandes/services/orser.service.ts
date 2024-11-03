@@ -1,5 +1,5 @@
-import ApiService from "../../../api/ApiService";
-export enum OrderStatus {
+ import ApiService, { Api } from "../../../api/ApiService";
+  export enum OrderStatus {
     PENDING="PENDING",
     CONFIRMED="CONFIRMED",
     IN_PROGRESS="IN_PROGRESS",
@@ -47,12 +47,15 @@ export interface OrderItemDto{
 export type UpdateOrderDto = Omit<Partial<CreateOrderDto&{status:OrderStatus}>,'orderItems'>&Partial<{orderItems:OrderItemDto&{id:number}}>;
 class OrderService {
   private apiService = ApiService;
-
+ 
   public async getOrders(): Promise<OrderResponse[]> {
     try {
-      const response = await this.apiService
-        .getInstance()
-        .get<OrderResponse[]>("/order");
+      // const response = await this.apiService
+      //   .getInstance()
+      const response = await Api().get<OrderResponse[]>("/order").then((res)=>{
+          // const permissions:string[] =(res?.headers['x-permissions'] as string).split(', ')
+             return res;
+        })
       return response.data;
     } catch (error) {
       throw error;
@@ -60,8 +63,9 @@ class OrderService {
   }
   public async getOrder(id: number): Promise<OrderResponse> {
     try {
-      const response = await this.apiService
-        .getInstance()
+      // const response = await this.apiService
+      //   .getInstance()
+      const response = await Api()
         .get<OrderResponse>(`/order/${id}`);
       return response.data;
     } catch (error) {
