@@ -48,8 +48,10 @@ export class AuthController {
     async getSession(@getUser() user:User){
         delete user.password;
         const role=await this.roleService.getRoleId(user.roleId);
+        
         return {
             ...user,
+            
             role:{
                 id:role.id,
                 name:role.name

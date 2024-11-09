@@ -1,12 +1,13 @@
-import { IsDecimal, IsNumber, IsString } from "class-validator"
+import { IsDecimal, IsNumber, IsNumberString, IsString } from "class-validator"
 
 export class CreateDishDto {
     @IsString()
     name:string
     @IsString()
     description? :string
-    @IsNumber()
+    @IsNumberString()
     price      :number
-    @IsNumber()
+    @IsNumberString()
     categoryId  :number
+    imageUrl?:string
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateDishDto } from './dto/create-dish.dto';
 import { UpdateDishDto } from './dto/update-dish.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -10,7 +10,8 @@ export class DishService {
    */
   constructor(private readonly prisma:PrismaService) {}
  async create(createDishDto: CreateDishDto) {
-    return await this.prisma.menuItem.create({data:createDishDto}) 
+    const item = await this.prisma.menuItem.create({data:createDishDto});
+    return item;
   }
 
  async findAll() {
@@ -20,6 +21,7 @@ export class DishService {
         name:true,
         price:true,
         description:true,
+        imageUrl:true,
         category:{
           select:{
             id:true,
@@ -29,13 +31,25 @@ export class DishService {
       }
     });
   }
+  async getCount(){
+    return this.prisma.menuItem.count();
+  }
 
   async findOne(id: number) {
     return await this.prisma.menuItem.findUnique({where:{id}})
   }
 
  async update(id: number, updateDishDto: UpdateDishDto) {
-    return await this.prisma.menuItem.update({where:{id},data:{...updateDishDto,updatedAt:new Date()}})
+  try {
+    const menu = await this.findOne(id);
+    if(!menu) throw new NotFoundException()
+      console.log({...updateDishDto,price:+updateDishDto.price})
+    
+    return await this.prisma.menuItem.update({where:{id},data:{...updateDishDto,price:+updateDishDto.price,categoryId:+updateDishDto.categoryId,updatedAt:new Date().toISOString()}})
+    
+  } catch (error) {
+    
+  }
   }
 
  async remove(id: number) {

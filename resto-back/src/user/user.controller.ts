@@ -13,10 +13,7 @@ import { Permissions } from 'src/auth/entities/permissions.enum';
 import { getUser } from 'src/auth/decorators/get-user.decorator';
 import { User } from '@prisma/client';
 import { PermissionService } from './permission/permission.service';
-// @UseGuards(AuthGuard('jwt'),RolesGuard,PermissionGuard)
-// @Permission(Permissions.MANAGE_STAFF)
-// @Role(Roles.ADMIN,Roles.MANAGER)
-// @Permission(Permissions.MANAGE_STAFF)
+ 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService,private readonly roleService:RoleService,
@@ -25,13 +22,13 @@ export class UserController {
 
   @UseGuards(AuthGuard('jwt'),PermissionGuard)
   @Permission(Permissions.MANAGE_STAFF)
-
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
 
-  
+  @UseGuards(AuthGuard('jwt'),)
+  @Permission(Permissions.MANAGE_STAFF)
   @Get()
   findAll() {
     return this.userService.findAll();
@@ -44,15 +41,19 @@ export class UserController {
   //   return this.userService.findOne(+id);
   // }
 
+  // @UseGuards(AuthGuard('jwt'),RolesGuard)
+  // @Permission(Permissions.MANAGE_STAFF) 
+  // @Role(Roles.ADMIN)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto,@getUser() user:User) {
+    console.log({me:user})
     return this.userService.update(+id, updateUserDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.userService.remove(+id);
-  }
+  } 
 
   @UseGuards(AuthGuard('jwt'))
   @Get('me')
@@ -64,6 +65,16 @@ export class UserController {
     }
     return me
   }
+  // @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  // @Permission(
+  //   Permissions.MANAGE_STAFF,
+  //   Permissions.MANAGE_INVENTORY,
+  //   Permissions.MANAGE_MENU,
+  //   Permissions.TAKE_ORDERS,
+  //   Permissions.VIEW_REPORTS,
+  //   Permissions.UPDATE_INVENTORY,
+  //   Permissions.VIEW_MENU
+  // )
   @Get('permissions')
   getPermissions(){
     return this.roleService.getPermissions();

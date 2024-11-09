@@ -100,16 +100,16 @@ export class UserService {
       }
     });
   }
-
-  // async findOne(id: number) {
-  //   return await this.prisma.user.findUnique({where:{id}})
-  // }
+// async findOne(id:number){
+//   return this.prisma.user.findUnique({where:{id}})
+// }
   async findByEmaail(email:string){
     console.log({email})
-    const user =await this.prisma.user.findUnique({where:{email}})
-    return user
-
-
+    const user =await this.prisma.user.findUnique(
+      {where:{email,}}
+      
+    )
+    return user;
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
@@ -9,6 +9,7 @@ import { Roles } from 'src/auth/entities/role.enum';
 import { PermissionGuard } from 'src/auth/guard/permission.guard';
 import { Permission } from 'src/auth/decorators/Permissions';
 import { Permissions } from 'src/auth/entities/permissions.enum';
+import { filter } from 'rxjs';
 
 @UseGuards(AuthGuard('jwt'),RolesGuard,PermissionGuard)
 @Role(Roles.ADMIN,Roles.SERVER,Roles.MANAGER)
@@ -26,8 +27,15 @@ export class OrderController {
 
   @Permission(Permissions.TAKE_ORDERS,Permissions.MANAGE_INVENTORY)
   @Get()
-  findAll() {
-    return this.orderService.findAll();
+  findAll(@Query() params?:any) {
+    console.log({params})
+    return this.orderService.findAll({params});
+  }
+  @Permission(Permissions.TAKE_ORDERS,Permissions.MANAGE_INVENTORY)
+  @Get('filtred')
+  findAllWithFilter(@Query() params?:any) {
+    console.log({filter:params})
+     return this.orderService.findAllFiltred({...params});
   }
   @Permission(Permissions.TAKE_ORDERS)
   @Get(':id')
@@ -41,8 +49,8 @@ export class OrderController {
     return this.orderService.update(+id, updateOrderDto);
   }
   @Permission(Permissions.TAKE_ORDERS)
-  @Delete(':id')
-  remove(@Param('id') id: string) {
+  @Delete(':id') 
+  remove(@Param('id') id: string) { 
     return this.orderService.remove(+id);
   }
 }

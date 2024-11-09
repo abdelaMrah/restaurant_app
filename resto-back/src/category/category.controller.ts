@@ -26,7 +26,32 @@ export class CategoryController {
   findAll() {
     return this.categoryService.findAll();
   }
+  @Get('count')
+  getCount(){
+    return this.categoryService.getCount();
+  }
+  //les menuItems groupes par les categorie
+  @Get('categoyMenu')
+  getCategoyMenu(){
+    return this.categoryService.getCategorisMenu()
+  }
+  // les 10 plat plus polulaire
+  @Get('mostMenuItemPopular')
+  async getMostMenuItemPopular(){
+    const res =await this.categoryService.mostMenuItemPopular()
+    const data= JSON.parse(res)
+    const maxOrders = Math.max(...data?.map(plate => Number(plate.total_orders)));
+    const maxPrice = Math.max(...data?.map(plate => plate.price));
 
+    // Calculer la popularité pour chaque plat
+    return data.map(plate => {
+        const popularity = (Number(plate.total_orders) / maxOrders) * (plate.price / maxPrice)*100;
+        return {
+            ...plate,
+            popularity: popularity.toFixed(4) 
+        };
+    });
+  }
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.categoryService.findOne(+id);
