@@ -76,3 +76,46 @@
     }
     return color;
 }
+
+
+export function stringToVividColor(str:string) {
+  // Étape 1 : Calculer un hachage simple
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+
+  // Étape 2 : Générer des valeurs HSL basées sur le hash
+  const hue = Math.abs(hash % 360);              // Teinte : 0-360°
+  const saturation = 75 + (hash % 20);           // Saturation : entre 75% et 95%
+  const lightness = 50 + (hash % 10);            // Luminosité : entre 50% et 60%
+
+  // Étape 3 : Convertir HSL en RGB
+  return hslToHex(hue, saturation, lightness);
+}
+
+function hslToHex(h:number, s:number, l:number) {
+  s /= 100;
+  l /= 100;
+  let c = (1 - Math.abs(2 * l - 1)) * s;
+  let x = c * (1 - Math.abs((h / 60) % 2 - 1));
+  let m = l - c / 2;
+  let r = 0, g = 0, b = 0;
+
+  if (0 <= h && h < 60) { r = c; g = x; b = 0; }
+  else if (60 <= h && h < 120) { r = x; g = c; b = 0; }
+  else if (120 <= h && h < 180) { r = 0; g = c; b = x; }
+  else if (180 <= h && h < 240) { r = 0; g = x; b = c; }
+  else if (240 <= h && h < 300) { r = x; g = 0; b = c; }
+  else if (300 <= h && h < 360) { r = c; g = 0; b = x; }
+
+  r = Math.round((r + m) * 255);
+  g = Math.round((g + m) * 255);
+  b = Math.round((b + m) * 255);
+
+  // Convertir en format hexadécimal
+  return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase()}`;
+}
+
+// Exemple d'utilisation
+console.log(stringToVividColor("Hello World"));  // Génère une couleur vive distincte

@@ -17,8 +17,7 @@ export class PermissionsInterceptor implements NestInterceptor {
 
     const response:Response =context.switchToHttp().getResponse()
     if (permissions) {
-      console.log({permissions})
-       response.setHeader('x-Permissions', permissions.join(', '));
+        response.setHeader('x-Permissions', permissions.join(', '));
     }
 
     return next.handle()

@@ -1,4 +1,5 @@
 import {  colors, PaletteMode, ThemeOptions } from "@mui/material";
+import { hexToRgba, stringToVividColor } from "./utils/utils";
 
 
 
@@ -196,10 +197,10 @@ export const themeSettings =(mode:PaletteMode):ThemeOptions=>{
                     borderColor: palettes(mode).primary.main ,
                     color:palettes(mode).primary.main,
                     '&:hover': {
-                      backgroundColor: `${palettes(mode).grey[200]}`,
+                      backgroundColor: `${hexToRgba(palettes(mode).grey[200],0.1)}`,
                     },
                   },
-                },
+                 },
               },
             MuiIconButton:{
                 defaultProps:{
@@ -210,7 +211,79 @@ export const themeSettings =(mode:PaletteMode):ThemeOptions=>{
                     },
                 },
                 
-            }
+            },
+            MuiSwitch:{
+                styleOverrides:{
+                    root:{
+                        width: 60,
+                        height: 34,
+                        padding: 7,
+                    },
+                    switchBase: {
+                        padding: 7,
+                        '.Mui-checked': {
+                            transform: 'translateX(26px)',
+                            color: palettes(mode).primary.light, // Couleur du bouton (thumb) en état activé
+                            '& + .MuiSwitch-track': {
+                              backgroundColor:hexToRgba(palettes(mode).primary.light,0.1), // Couleur de la piste en état activé
+                              opacity: 1,
+                            },
+                          },
+                          '&.Mui-checked:hover': {
+                            backgroundColor: 'rgba(76, 175, 80, 0.15)', // couleur de survol en état activé
+                          },
+                          '&:hover': {
+                            backgroundColor: hexToRgba(palettes(mode).primary.main,0.1), // couleur de survol en état désactivé
+                          },
+                        },
+                        thumb: {
+                            backgroundColor: palettes(mode).primary.main, // Couleur du bouton (thumb)
+                            width: 26,
+                            height: 26,
+                            boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.4)', // Ombre pour le bouton
+                          },
+                          track: {
+                            borderRadius: 34 / 2,
+                            backgroundColor:hexToRgba(palettes(mode).primary.light,0.6), // Couleur de la piste en état désactivé
+                            opacity: 1,
+                            transition: 'background-color 500ms', // Transition plus fluide
+                          
+                          
+                    }
+                }
+            },
+            MuiTextField: {
+                defaultProps: {
+                  variant: 'outlined', // Définit le type par défaut (outlined, filled, standard)
+                },
+              },
+              MuiInputBase: {
+                styleOverrides: {
+                  root: {
+                    backgroundColor:hexToRgba(palettes(mode).background.default,0.6), // Couleur de fond par défaut pour le TextField
+                    borderRadius: 4, // Optionnel : arrondi pour les bords
+                  },
+                  input: {
+                    padding: '10px 12px', // Ajustement du padding pour un meilleur espacement
+                  },
+                },
+              },
+              MuiOutlinedInput: {
+                styleOverrides: {
+                  root: {
+                    '& fieldset': {
+                      borderColor: '#c4c4c4', // Couleur de la bordure en état normal
+                    },
+                    '&:hover fieldset': {
+                      borderColor: '#888888', // Couleur de la bordure au survol
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#3f51b5', // Couleur de la bordure en état actif
+                    },
+                  },
+                },
+              },
+
         }
         
     }
@@ -229,7 +302,7 @@ export const themeSettings =(mode:PaletteMode):ThemeOptions=>{
             contrastText:'#14145a'
         },
         secondary:{
-            main: '##C327AB', 
+            main: '#C327AB', 
             light: '#E147CAFF', 
             dark: '#9A1285FF',
             contrastText: '#C327AB',
@@ -263,7 +336,7 @@ export const themeSettings =(mode:PaletteMode):ThemeOptions=>{
    }else{
     return {
         primary: {
-            main: '##C327AB', 
+            main: '#C327AB', 
             light: '#E147CAFF', 
             dark: '#9A1285FF',
             contrastText: '#C327AB',

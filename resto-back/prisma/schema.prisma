@@ -31,7 +31,6 @@ model User {
   orders           Order[]
   userPermissions  UserPermission[]
   employee         Employee?                   
-  
   createdAt        DateTime           @default(now())
   updatedAt        DateTime?          @updatedAt
 }
@@ -55,6 +54,7 @@ model Employee {
   advances         Advance[]
   abscence         Absence[]
   attendance       Attendance[]
+  cook             Cook?
   createdAt        DateTime   @default(now())
   updatedAt        DateTime?  @updatedAt
 
@@ -116,7 +116,7 @@ model RolePermission {
   permissionId    Int
   role            Role             @relation(fields: [roleId], references: [id])
   permission      Permission       @relation(fields: [permissionId], references: [id])
-  isGranted       Boolean          @default(false) 
+  isGranted       Boolean          @default(true) 
 
   @@unique([roleId, permissionId]) 
   createdAt      DateTime         @default(now())
@@ -135,6 +135,15 @@ model UserPermission {
   createdAt      DateTime         @default(now())
   updatedAt      DateTime?        @updatedAt
 }
+model WorkDay {
+  id          Int      @id @default(autoincrement())
+  date        DateTime @unique
+  isOpen      Boolean
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  inventories Inventory[]
+  orders      Order[]
+}
 
 model Order {
   id          Int        @id @default(autoincrement())
@@ -142,9 +151,14 @@ model Order {
   user        User       @relation(fields: [userId], references: [id])
   userId      Int
   type        OrderType?  @default(takeout)
+  table       Int?
+  phone       String?
   createdAt   DateTime   @default(now())
   updatedAt   DateTime?  @updatedAt
   orderItems  OrderItem[]
+  workDayId   Int
+  workDay     WorkDay  @relation(fields: [workDayId], references: [id])
+
 }
 
 model OrderItem {
@@ -152,8 +166,10 @@ model OrderItem {
   order     Order    @relation(fields: [orderId], references: [id] ,onDelete: Cascade)
   
   orderId   Int
-  menuItem  MenuItem @relation(fields: [menuItemId], references: [id])
+  menuItem  MenuItem @relation(fields: [menuItemId], references: [id],onDelete: NoAction)
   menuItemId Int
+  orderItemCooks OrderItemCook[] 
+
   quantity  Int
   createdAt DateTime @default(now())
   updatedAt DateTime?
@@ -166,8 +182,28 @@ model Ingredient {
   createdAt   DateTime    @default(now())
   updatedAt   DateTime?   @updatedAt
 }
+model OrderItemCook {
+  id          Int         @id @default(autoincrement())
+  orderItemId Int
+  cookId      Int
+  orderItem   OrderItem   @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  cook        Cook        @relation(fields: [cookId], references: [id], onDelete: Cascade)
 
+  @@unique([orderItemId, cookId]) 
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime?   @updatedAt
+}
 
+model Cook {
+  id          Int        @id @default(autoincrement())
+  employeId      Int        @unique
+  specialties String[]  
+  employe        Employee       @relation(fields: [employeId], references: [id], onDelete: Cascade)
+  orderItemCooks OrderItemCook[]
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime?  @updatedAt
+}
 
 model MenuItemIngredient {
   id          Int       @id @default(autoincrement())
@@ -203,10 +239,13 @@ model Inventory {
   menuItem    MenuItem @relation(fields: [menuItemId], references: [id])
   menuItemId  Int
   stockLevel  Int
-  reorderLevel Int
+  reorderLevel Int  
+  workDayId   Int
+  workDay     WorkDay  @relation(fields: [workDayId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime? @updatedAt
 }
+
 model MenuItem {
   id          Int       @id @default(autoincrement())
   name        String
@@ -244,33 +283,12 @@ model ReplenishmentOrder {
 
 
 
+model OrdersSummaryByHour {
+  hour           Int
+  total_orders   Int
+  total_menu_items Int
+  total_revenue  Float
 
-
-
-// model MenuItem {
-//   id          Int       @id @default(autoincrement())
-//   name        String
-//   description String?
-//   price       Float
-//   category    Category  @relation(fields: [categoryId], references: [id])
-//   categoryId  Int
-//   orderItem   OrderItem[]
-//   replenishmentOrder  ReplenishmentOrder[]
-//   inventory    Inventory[]
-//   isAvailable Boolean   @default(true)
-//   ingredients  MenuItemIngredient[] 
-//   createdAt   DateTime  @default(now())
-//   updatedAt   DateTime? @updatedAt
-// }
-
-// model ReplenishmentOrder {
-//   id            Int      @id @default(autoincrement())
-//   menuItem      MenuItem @relation(fields: [menuItemId], references: [id])
-//   menuItemId    Int
-//   quantity      Int
-//   orderDate     DateTime @default(now())
-//   receivedDate  DateTime?
-//   createdAt     DateTime @default(now())
-//   updatedAt     DateTime?
-// }
-
+  @@map("orders_summary_by_hour") 
+  @@ignore                        
+}

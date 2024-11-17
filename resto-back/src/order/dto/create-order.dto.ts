@@ -9,6 +9,8 @@ export class CreateOrderDto {
     @IsNotEmpty()
     orderItems: OrderItem[]
     type?:OrderType
+    table?:number
+    phone?:string;
     
 }
 

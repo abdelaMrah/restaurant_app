@@ -1,8 +1,12 @@
 
 
 export type User = {
+  firstName:string;
+  userName:string,
+  lastName:string;
   userId: string;
   email: string;
+  phone?:string
   role:Role;
   photoUrl?:string|null;
 };

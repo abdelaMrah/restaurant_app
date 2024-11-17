@@ -2,7 +2,7 @@ import { createBrowserRouter, Outlet } from "react-router-dom";
 import { Commandes } from "./pages/commandes/Commandes";
 import NewOrder from "./pages/commandes/pages/nouvel_commande";
 import CurrentOrders from "./pages/commandes/pages/CommandeList";
-import Dashboard from "./pages/dashboard/Dasboard";
+import Dashboard from "./pages/dashboard/pages/Dasboard";
 import OrderHistory from "./pages/commandes/pages/history";
 import Login from "./pages/login/loginPage";
 import MenuManagement from "./pages/menu/pages/MenuManagement";
@@ -33,6 +33,7 @@ import InventoryDashboard from "./pages/inventory/pages/dasboard";
 import EmployeeDashboard from "./pages/users/pages/dashboard";
 import UnauthorizedPage from "./pages/common/unauthorized";
 import PermissionGuard from "./Layouts/PermissionsGuard";
+import CaissierDashboard from "./pages/dashboard/pages/CaissiserDashboard";
 
  
 export const routers= createBrowserRouter([
@@ -48,7 +49,7 @@ export const routers= createBrowserRouter([
             children:[
                 {
                     path:'',
-                    element:<Dashboard/>
+                    element:<CaissierDashboard/>
                 },
                 {
                     path:'commandes',

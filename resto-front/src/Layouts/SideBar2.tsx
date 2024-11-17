@@ -538,9 +538,9 @@ function Sidebar({ open, onClose, isMobile }: SidebarProps) {
           <ListItem disablePadding>
             <ListItemButton>
               <ListItemIcon>
-                <Avatar alt={authContext.user.email} src={authContext.user?.photoUrl?.toString()} />
+                <Avatar alt={authContext.user.userName} src={authContext.user?.photoUrl?.toString()} />
               </ListItemIcon>
-              <ListItemText primary={authContext?.user?.role.name.toLowerCase()} secondary={authContext?.user?.email} />
+              <ListItemText primary={authContext?.user?.userName} secondary={authContext?.user?.role.name.toLowerCase()} />
             </ListItemButton>
           </ListItem>
         )}

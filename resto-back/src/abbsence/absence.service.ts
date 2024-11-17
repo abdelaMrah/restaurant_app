@@ -4,7 +4,7 @@ import { UpdateAbdcenceDto } from './dto/update-absence.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Abcence } from './entities/absence.entity';
 @Injectable()
-export class AbdcenceService {
+export class AbsenceService {
   constructor(private readonly prisma :PrismaService){}
   async create(createAbdcenceDto: CreateAbsenceDto) {
     const abscence = await this.prisma.absence.create({

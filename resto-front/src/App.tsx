@@ -4,15 +4,14 @@ import { Box, createTheme, ThemeProvider } from "@mui/material"
 import {  useContext, useEffect, useMemo } from "react";
 import {themeSettings} from './theme'
 import { appContext } from "./context/appContext";
-import { hashStringToColor } from "./utils/utils";
+import {  stringToVividColor } from "./utils/utils";
 
  
  
 function App() {
 const {mode} = useContext(appContext)
  
-console.log({color:hashStringToColor('hello abdellah')})
-
+ 
  const theme = useMemo(()=>createTheme(themeSettings(mode)) ,[mode])
 
  useEffect(() => {

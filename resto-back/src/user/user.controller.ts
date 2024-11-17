@@ -3,9 +3,6 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { RolesGuard } from 'src/auth/guard/role.guard';
-import { Role } from 'src/auth/decorators/Roles';
-import { Roles } from 'src/auth/entities/role.enum';
 import { CreateRoleDto, RoleService, UpdateRoleDto } from './role/role.service';
 import { PermissionGuard } from 'src/auth/guard/permission.guard';
 import { Permission } from 'src/auth/decorators/Permissions';
@@ -13,6 +10,9 @@ import { Permissions } from 'src/auth/entities/permissions.enum';
 import { getUser } from 'src/auth/decorators/get-user.decorator';
 import { User } from '@prisma/client';
 import { PermissionService } from './permission/permission.service';
+import { Role } from 'src/auth/decorators/Roles';
+import { Roles } from 'src/auth/entities/role.enum';
+import { RolesGuard } from 'src/auth/guard/role.guard';
  
 @Controller('user')
 export class UserController {
@@ -41,13 +41,12 @@ export class UserController {
   //   return this.userService.findOne(+id);
   // }
 
-  // @UseGuards(AuthGuard('jwt'),RolesGuard)
-  // @Permission(Permissions.MANAGE_STAFF) 
-  // @Role(Roles.ADMIN)
+  @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  @Permission(Permissions.MANAGE_STAFF)
+  // @Role(Roles.ADMIN) 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto,@getUser() user:User) {
-    console.log({me:user})
-    return this.userService.update(+id, updateUserDto);
+  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+     return this.userService.update(+id, updateUserDto);
   }
 
   @Delete(':id')
@@ -58,8 +57,7 @@ export class UserController {
   @UseGuards(AuthGuard('jwt'))
   @Get('me')
   async getMe(@getUser() user:User){
-    console.log({user})
-    const me = await this.userService.getMe(23);
+     const me = await this.userService.getMe(23);
     if(!me){
       return new NotFoundException()
     }
@@ -92,8 +90,7 @@ export class UserController {
   }
   @Post('roles')
   createRole(@Body() createRoleDto:CreateRoleDto){
-    console.log({createRoleDto})
-    return this.roleService.createRole(createRoleDto);
+     return this.roleService.createRole(createRoleDto);
   }
   @Delete('roles/:id')
   deleteRole(@Param('id',ParseIntPipe) id:number){
@@ -104,4 +101,6 @@ export class UserController {
   async updateRole(@Param('id') id:string,@Body() updateRoleDto:UpdateRoleDto){
      return await this.roleService.updateRole(+id,updateRoleDto);
   }
+
+
 }

@@ -64,21 +64,19 @@ export const AuthContextProvider = ({ children }: IProps) => {
     });
    })
    .catch((e)=>{
-    console.log({e})
-    errorHandler(e)
+     errorHandler(e)
    })
   };
 
   useEffect(() => {
-    console.log({isAuth,isSessionLoaded})
-    if (isAuth && location.pathname === "/login") navigate("");
+     if (isAuth && location.pathname === "/login") navigate("");
     if (!isAuth && location.pathname !== "/login") {
         if(isSessionLoaded) navigate("/login")
     };
   }, [isAuth, isSessionLoaded]);
 
   // const roleId = user?.role.id as number;
-  const {data:permissions} =useQuery(['permissions-user'],async ()=> await roleService.getRolePermissions()) ;
+  const {data:permissions} =useQuery(['permissions-user',isSessionLoaded],async ()=> await roleService.getRolePermissions()) ;
   const userPermissions =useMemo(()=>{
     return permissions?.map(({permission})=>permission?.name as string)
   },[permissions])
@@ -94,6 +92,9 @@ export const AuthContextProvider = ({ children }: IProps) => {
               auth:{
                 isAuth:true,
                 user:{
+                  firstName:data.firstname,
+                  lastName:data.lastname,
+                  userName:data.username,
                   email:data.email,
                   role:data.role,
                   userId:data.id,
@@ -107,19 +108,21 @@ export const AuthContextProvider = ({ children }: IProps) => {
           
         }
       }).catch((e)=>{
-        console.log({e})
-
+ 
          if(e instanceof AxiosError){
           if(e.status==401){
             loginSrvice.refresh()
             .then((res)=>{
-              console.log({res},'refetch ')
-              dispatch({
+               dispatch({
                 type:'auth',
                 payload:{
                   auth:{
                     isAuth:true,
                     user:{
+                      firstName:res.firstname,
+                      lastName:res.lastname,
+                      userName:res.username,
+                      phone:res.phone,
                       userId:res.id,
                       email:res.email,
                       role:res.role.name,
@@ -129,8 +132,7 @@ export const AuthContextProvider = ({ children }: IProps) => {
                 }
               })
             }).catch((e)=>{
-              console.log({e})
-
+ 
               if(e instanceof AxiosError){
                 if(e.status==401){
                   dispatch({

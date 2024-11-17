@@ -41,8 +41,7 @@ export class DishController {
   @Post()
   create(@UploadedFile() files:Express.Multer.File,
   @Body() createDishDto: {categoryId:string,name:string,price:string,description?:string,imageUrl?:string}) {
-    console.log({filename:files.filename})
-    if(files){
+     if(files){
       return this.dishService.create(
         {name:createDishDto.name,
           description:createDishDto?.description,

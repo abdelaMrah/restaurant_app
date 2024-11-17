@@ -2,15 +2,23 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-
+import { OrderItemService } from 'src/order-item/order-item.service';
+import { OrderStatus, OrderType } from '@prisma/client';
+import { WorkDayService } from 'src/workday/workday.service';
 @Injectable()
 export class OrderService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService,
+    // private readonly orderItemService:OrderItemService
+    private readonly workDayService:WorkDayService
+  ) {}
   async create(createOrderDto: CreateOrderDto) {
+    console.log({workDayId:await this.workDayService.getCurrentWorkDay()})
     return await this.prisma.order.create({
       data: {
         ...createOrderDto,
-        type: 'dine_in',
+
+        workDayId:await this.workDayService.getCurrentWorkDay(),
+        type:OrderType[createOrderDto.type],
         orderItems: {
           createMany: {
             data: createOrderDto.orderItems.map((item) => {
@@ -26,8 +34,7 @@ export class OrderService {
   }
 
   async findAll({ params }) {
-    console.log(params);
-    return await this.prisma.order.findMany({
+     return await this.prisma.order.findMany({
       where: { ...params },
       // where:{},
       orderBy: {
@@ -71,8 +78,7 @@ export class OrderService {
     const count = await this.prisma.order.count({
       
     })
-    console.log({page,pageSize})
-    
+     
     const orders= await this.prisma.order.findMany({  
       where: {  status:{notIn:['IN_PROGRESS',]}, },
       take: +pageSize,
@@ -118,29 +124,20 @@ export class OrderService {
   }
 
   async update(id: number, updateOrderDto: UpdateOrderDto) {
-    return '';
-    // return await this.prisma.order.update({where:{id},data:{
-    //   updatedAt:new Date(),
-    //   items:{
-    //     update:updateOrderDto.items.map((item)=>{
-    //       return {
-    //         where:{id:item.id},
-    //         data:item
-    //       }
-    //     })
-    //   },
-
-    // },include:{
-    //   items:true
-    // }})
+  const order = await this.findOne(id);
+  if(!order) throw new NotFoundException();
+  const orderItems = updateOrderDto.orderItems
+  if(!orderItems) {
+  
+    return await this.prisma.order.update({where:{id},data:{status:updateOrderDto.status}})
+  }
+ 
   }
 
   async remove(id: number) {
     try {
-      console.log({ id });
-      const order = await this.findOne(id);
-      console.log({ order });
-      if (!order) throw new NotFoundException();
+       const order = await this.findOne(id);
+       if (!order) throw new NotFoundException();
       await this.prisma.order.delete({ where: { id } });
     } catch (error) {
       throw error;

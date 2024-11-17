@@ -10,6 +10,13 @@ export interface CreateCategoryDto{
     description?:string;
 }
 export type UpdateCategoryDto=Partial<CreateCategoryDto>
+export interface MostPopularInterfaceResponse{
+    categoyId:number;
+    plate_name:string;
+    popularity:number;
+    price:number;
+    total_orders:number;
+}
 class CategoriyService{
 
     private apiService=ApiService;
@@ -55,6 +62,22 @@ public async deleteCategory(id:number){
         }
 }
 
+public async getCategoriesCount(){
+    try {
+        const response = await this.apiService.getInstance().get<number>('/category/count');
+        return response.data
+    } catch (error) {
+        
+    }
+}
+public async mostMenuItemPopular(){
+    try {
+        const response = await this.apiService.getInstance().get<MostPopularInterfaceResponse[]>('/category/mostMenuItemPopular');
+        return response.data
+    } catch (error) {
+        
+    }
+}
 }
 
 export default new CategoriyService();

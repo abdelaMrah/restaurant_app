@@ -34,8 +34,7 @@ class LoginService{
     public async getSession(){
         try {
             const response = await this.apiService.getInstance().get<any>('/auth/session');
-            console.log({user:response.data})
-            return response.data;
+             return response.data;
         } catch (error) {
             throw error;
         }

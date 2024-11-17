@@ -12,6 +12,10 @@ import { EmployeModule } from './employe/employe.module';
 import { AbdcenceModule } from './abbsence/absence.module';
 import { AdvanceModule } from './advance/advance.module';
 import { PermissionsMiddleware } from './permissions/permissions.middleware';
+import { AttendanceModule } from './attendance/attendance.module';
+import { WorkdayModule } from './workday/workday.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import { AnalyticsModule } from './analytics/analytics.module';
  
 @Module({
   imports: [
@@ -27,7 +31,14 @@ import { PermissionsMiddleware } from './permissions/permissions.middleware';
     EmployeModule, 
     AbdcenceModule,
     AdvanceModule,
-    
+    AttendanceModule,
+    WorkdayModule,
+    CacheModule.register({
+      isGlobal:true,
+      store:'memory',
+      max:100
+    }),
+    AnalyticsModule
   ],
   providers: [
     

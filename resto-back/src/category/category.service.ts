@@ -121,8 +121,7 @@ ORDER BY
 LIMIT 10;
 
       `
-      console.log({res})
-      return JSON.stringify(res, (_, value) =>
+       return JSON.stringify(res, (_, value) =>
         typeof value === "bigint" ? Number(value) : value,
       );
       

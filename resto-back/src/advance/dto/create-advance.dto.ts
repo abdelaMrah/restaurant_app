@@ -5,6 +5,6 @@ export class CreateAdvanceDto {
     employeeId:number;
     @IsNumber()
     amount:number;
-    // @IsDateString()
+    @IsDateString()
     requestDate?:Date;
 }

@@ -5,7 +5,7 @@ import {
   Snackbar, IconButton, Tooltip, Paper,
   useTheme
 } from '@mui/material';
-import { DataGrid, GridColDef, GridRenderCellParams, GridToolbar } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRenderCellParams, GridToolbar,  GridToolbarQuickFilter,GridFilterOperator,GridFilterInputDate, GridFilterInputDateProps } from '@mui/x-data-grid';
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, Warning as WarningIcon } from '@mui/icons-material';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import { hexToRgba } from '../../../utils/utils';
@@ -21,7 +21,8 @@ interface InventoryItem {
   maxThreshold: number;
   lastRestockDate: string;
 }
-
+ 
+ 
 const initialInventory: InventoryItem[] = [
   { id: 1, name: "Bœuf haché", category: "Viandes", quantity: 50, unit: "kg", minThreshold: 20, maxThreshold: 100, lastRestockDate: "2023-04-20" },
   { id: 2, name: "Pommes de terre", category: "Légumes", quantity: 200, unit: "kg", minThreshold: 50, maxThreshold: 300, lastRestockDate: "2023-04-18" },
@@ -113,7 +114,7 @@ export default function InventoryManagement() {
     },
     { field: 'minThreshold', headerName: 'Seuil Min',flex:1 },
     { field: 'maxThreshold', headerName: 'Seuil Max',flex:1 },
-    { field: 'lastRestockDate', headerName: 'Dernier Réapprovisionnement',flex:1.5 },
+    { field: 'lastRestockDate', headerName: 'Dernier Réapprovisionnement',type:'dateTime',flex:1.5,valueGetter:(value)=>new Date(value) },
     {
       field: 'actions',
       headerName: 'Actions',
@@ -139,7 +140,7 @@ export default function InventoryManagement() {
         </Typography>
         
         <Button
-          variant="contained"
+          variant="outlined"
           startIcon={<AddIcon />}
           onClick={() => handleOpenDialog()}
           sx={{ mb: 2 }}
@@ -176,6 +177,9 @@ export default function InventoryManagement() {
           
           slots={{
             toolbar: GridToolbar,
+            filterPanel:(props)=>(<GridToolbarQuickFilter
+            
+            />)
           }}
           slotProps={{
             toolbar: {

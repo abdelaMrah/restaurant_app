@@ -168,7 +168,7 @@ export default function StaffScheduling() {
           </Box>
 
           <Button
-            variant="contained"
+            variant="outlined"
             startIcon={<AddIcon />}
             onClick={() => handleOpenDialog()}
             sx={{ mb: 2 }}

@@ -105,10 +105,7 @@ export class RoleService {
                 roleId:id
             }
         });
-        console.log({
-             id,
-            updateRoleDto
-        })
+     
         const role =await this.prisma.role.update({
             where:{id:+id},
             data:{

@@ -13,10 +13,7 @@ const checkPermission =async  (userPermissions:string[]|undefined,requiredPermis
    if(!isSessionLoaded) return null
 
      if(!requiredPermissions) return true;
-     console.log({
-        userPermissions,
-        requiredPermissions
-     })
+    
     const permited= requiredPermissions?.some(permissions=>
         userPermissions?.toString().toLowerCase().includes(permissions.toLowerCase())
         
@@ -45,8 +42,7 @@ useEffect(() => {
     const verifyPermission = async () => {
       setHasPermission(await permitted);
     //   const permitter
-      console.log({permitted:await permitted})
-      if (!permitted&&auth.isSessionLoaded) {
+       if (!permitted&&auth.isSessionLoaded) {
         navigate('/unauthorized');
       }
     };
@@ -85,8 +81,7 @@ useEffect(() => {
     const verifyPermission = async () => {
       setHasPermission(await permitted);
     //   const permitter
-      console.log({permitted:await permitted})
-      if (!permitted&&auth.isSessionLoaded) {
+       if (!permitted&&auth.isSessionLoaded) {
       }
     };
     verifyPermission();

@@ -7,8 +7,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class UserService {
   constructor(private readonly prisma:PrismaService){}
   async create(createUserDto: CreateUserDto) {
-    console.log({createUserDto})
-    return await this.prisma.user.create({data:{...createUserDto,roleId:+createUserDto.roleId,startDate:new Date(createUserDto.startDate)}});
+     return await this.prisma.user.create({data:{...createUserDto,roleId:+createUserDto.roleId,startDate:new Date(createUserDto.startDate)}});
   }
   async getMe(id:number){
      const me =await this.prisma.user.findUnique({
@@ -69,8 +68,7 @@ export class UserService {
         
       
     })
-    console.log({me})
-    return me;
+     return me;
   }
   async countEmployes(){
     return await this.prisma.user.count({
@@ -104,8 +102,7 @@ export class UserService {
 //   return this.prisma.user.findUnique({where:{id}})
 // }
   async findByEmaail(email:string){
-    console.log({email})
-    const user =await this.prisma.user.findUnique(
+     const user =await this.prisma.user.findUnique(
       {where:{email,}}
       
     )
@@ -113,15 +110,28 @@ export class UserService {
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
-    console.log({id,updateUserDto})
-    const update =await this.prisma.user.update({where:{id},data:{...updateUserDto,roleId:+updateUserDto?.roleId,updatedAt:new Date().toISOString()}})
-    console.log({update})
-    return update
+     const update =await this.prisma.user.update({where:{id},data:{...updateUserDto,roleId:+updateUserDto?.roleId,updatedAt:new Date().toISOString()}})
+     return update
   }
 
   async remove(id: number) {
     return await this.prisma.user.delete({where:{id}})
   }
   
+  async getUsersWithSalary(){
+    const users = await this.prisma.user.findMany({
+      include:{
+        employee:{
+          include:{
+            user:true,
+            abscence:true,
+            salary:true,
+            advances:true
+          }
+        }
+      }
+    })
+    return users
+  }
 
 }

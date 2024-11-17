@@ -151,6 +151,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import ImageUpload from '../../../components/upload.image';
 
 const data = [
   { name: 'Lun', total: 32000 },
@@ -347,6 +348,7 @@ export default function Dashboard() {
         >
           Voir les réservations
         </Button>
+        {/* <ImageUpload/> */}
       </Box>
     </Box>
   );

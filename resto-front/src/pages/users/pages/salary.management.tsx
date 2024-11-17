@@ -180,7 +180,7 @@ export default function SalaryManagement() {
       />
 
       <Button
-        variant="contained"
+        variant="outlined"
         startIcon={<AddIcon />}
         onClick={() => handleOpenDialog()}
         sx={{ mb: 2 }}

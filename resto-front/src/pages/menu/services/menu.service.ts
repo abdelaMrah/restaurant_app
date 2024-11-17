@@ -8,6 +8,8 @@ export interface Menu{
         price:number;
         description:string;
         category:Category
+        imageUrl?:string|File
+        
       
 }
 export interface CreateMenuDto{
@@ -15,6 +17,7 @@ export interface CreateMenuDto{
     description? :string
     price      :number
     categoryId  :number
+    // imageUrl:File
 }
 export type UpdateMenuDto=Partial<CreateMenuDto>
 class MenuService {
@@ -36,17 +39,23 @@ class MenuService {
             throw error
         }
     }
-    public async createMenu(createMenuDto:CreateMenuDto):Promise<Menu>{
+    public async createMenu(createMenuDto:any):Promise<Menu>{
+      const  headers= {
+        'Content-Type': 'multipart/form-data',
+           }
         try {
-        const response =  await this.apiService.getInstance().post<Menu>(`/dish`,createMenuDto);
+        const response =  await this.apiService.getInstance().post<Menu>(`/dish`,createMenuDto,{headers});
         return response.data;
         } catch (error) {
             throw error
         }
     }
-    public async updateMenu(id:number,updateMenuDto:UpdateMenuDto):Promise<Menu>{
+    public async updateMenu(id:number,updateMenuDto:any):Promise<Menu>{
+        const  headers= {
+            'Content-Type': 'multipart/form-data',
+               }
         try {
-        const response = await this.apiService.getInstance().patch<Menu>(`/dish/${id}`,updateMenuDto);
+        const response = await this.apiService.getInstance().patch<Menu>(`/dish/${id}`,updateMenuDto,{headers});
         return response.data;
         } catch (error) {
             throw error
@@ -59,6 +68,15 @@ class MenuService {
                 throw error
             }
     }
+    public async getCategoriesCount(){
+        try {
+            const response = await this.apiService.getInstance().get<number>('/dish/count');
+            return response.data;
+        } catch (error) {
+            throw error
+        }
+    }
+  
 
 }
 

@@ -221,7 +221,7 @@ export default function RestaurantSettings() {
             />
           </Paper>
 
-          <Button variant="contained" color="primary" onClick={handleSave}>
+          <Button variant="outlined" color="primary" onClick={handleSave}>
             Sauvegarder les Paramètres
           </Button>
 

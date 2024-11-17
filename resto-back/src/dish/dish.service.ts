@@ -43,8 +43,7 @@ export class DishService {
   try {
     const menu = await this.findOne(id);
     if(!menu) throw new NotFoundException()
-      console.log({...updateDishDto,price:+updateDishDto.price})
-    
+     
     return await this.prisma.menuItem.update({where:{id},data:{...updateDishDto,price:+updateDishDto.price,categoryId:+updateDishDto.categoryId,updatedAt:new Date().toISOString()}})
     
   } catch (error) {

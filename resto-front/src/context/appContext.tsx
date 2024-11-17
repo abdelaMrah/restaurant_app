@@ -137,8 +137,7 @@ export const AppContextProvider = ({children}:{children:React.ReactNode})=>{
    useEffect(() => {
     const handleHeaders = (event: Event) => {
       const customEvent = event as CustomEvent;
-      console.log(customEvent)
-      setHeaders(customEvent.detail);
+       setHeaders(customEvent.detail);
     };
     
     headerEvent.addEventListener('headers', handleHeaders);
@@ -151,9 +150,7 @@ export const AppContextProvider = ({children}:{children:React.ReactNode})=>{
     };
   }, []);
 
-  useEffect(() => {
-      console.log({headers})
-  }, [headers])
+  
   const requiredPermissions=headers
  
   

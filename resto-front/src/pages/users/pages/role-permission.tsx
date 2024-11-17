@@ -260,9 +260,6 @@ import {
   TableRow,
   Chip,
   Grid,
-  // Card,
-  // CardContent,
-  // CardActions,
   Tooltip,
   Divider,
 } from '@mui/material';
@@ -408,7 +405,7 @@ export default function RolePermissionManagement() {
               ))}
             </List>
             <Button
-              variant="contained"
+              variant="outlined"
               startIcon={<AddIcon />}
               onClick={() => handleOpenDialog()}
               sx={{ mt: 2 }}

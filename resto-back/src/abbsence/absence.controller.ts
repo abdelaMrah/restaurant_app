@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, ParseIntPipe } from '@nestjs/common';
-import { AbdcenceService } from './absence.service';
+import { AbsenceService } from './absence.service';
 import { CreateAbsenceDto } from './dto/create-absence.dto';
 import { UpdateAbdcenceDto } from './dto/update-absence.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -14,7 +14,7 @@ import { Permissions } from 'src/auth/entities/permissions.enum';
 @Permission(Permissions.MANAGE_STAFF)
 @Controller('absence')
 export class AbdcenceController {
-  constructor(private readonly abdcenceService: AbdcenceService) {}
+  constructor(private readonly abdcenceService: AbsenceService) {}
   
   @Post() 
   create(@Body() createAbdcenceDto: CreateAbsenceDto) {
