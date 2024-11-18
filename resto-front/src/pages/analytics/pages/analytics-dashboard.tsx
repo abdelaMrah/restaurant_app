@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Box, Typography, Paper, Grid, Select, MenuItem, FormControl, InputLabel,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow
@@ -7,42 +7,95 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   PieChart, Pie, Cell
 } from 'recharts';
+import { useQueries } from 'react-query';
+import analyticsService, { CategoryMenuRespose, CategoryRevenu, RevenuItem, TotalRevenueResponse } from '../services/analyticsService';
+import { stringToVividColor } from '../../../utils/utils';
+import dayjs from 'dayjs';
+ interface SalesData{
+  name:string;
+  ventes:number;
+ }
+interface CategpryData{
+  name: string;
+  value: number;
+}
+interface TopSalesItems{
+  name: string;
+  quantity: number;
+  revenue: number;
+}
+ 
+ 
 
  
 
-// Données simulées pour les graphiques
-const salesData = [
-  { name: 'Lun', ventes: 4000 },
-  { name: 'Mar', ventes: 3000 },
-  { name: 'Mer', ventes: 2000 },
-  { name: 'Jeu', ventes: 2780 },
-  { name: 'Ven', ventes: 1890 },
-  { name: 'Sam', ventes: 2390 },
-  { name: 'Dim', ventes: 3490 },
-];
+const getCategoryDataPipe = (data:CategoryRevenu[] | undefined)=>{
+  if(!data) return {}
+  const res = data.map((item)=>{
+    return {
+      name:item.category_name,
+      value:item.total_revenue
+    } as CategpryData
+  })
+  const COLORS = data?.map((cat) => stringToVividColor(cat.category_name));
+ return {
+  categoryData:res,
+  COLORS
+ }
+  
+}
 
-const categoryData = [
-  { name: 'Plats principaux', value: 400 },
-  { name: 'Entrées', value: 300 },
-  { name: 'Desserts', value: 300 },
-  { name: 'Boissons', value: 200 },
-];
+const getSalesDataPipe =(data:TotalRevenueResponse[] | undefined):SalesData[]=>{
+  if(!data)return []
+  const res  =data.map((item)=>{
+    return {
+      name:dayjs(item.sale_date).format('ddd'),
+      ventes:item.total_revenue
+    }as SalesData
+  })
+  return res;
+}
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
-
-const topSellingItems = [
-  { name: 'Burger Classic', quantity: 150, revenue: 1350 },
-  { name: 'Pizza Margherita', quantity: 120, revenue: 1440 },
-  { name: 'Salade César', quantity: 100, revenue: 900 },
-  { name: 'Pâtes Carbonara', quantity: 80, revenue: 960 },
-  { name: 'Tiramisu', quantity: 75, revenue: 525 },
-];
-
+const getItemsRevenu =(data:RevenuItem[] | undefined):TopSalesItems[]=>{
+  if(!data) return [];
+  const res = data.map((item)=>{
+    return {
+      name:item.item_name,
+      quantity:item.total_sales_count,
+      revenue:item.total_revenue
+    }as TopSalesItems
+  })
+  return res;
+}
+type PriodeType='week' | 'month' | 'year'
 export default function AnalyticsDashboard() {
-  const [timeRange, setTimeRange] = useState('week');
+  const [timeRange, setTimeRange] = useState<PriodeType>('week');
+ const [
+  {data},
+  {data:revenu},
+  {data:revenuItem},
+  {data:totalRevenu}
 
+] = useQueries([
+  {
+    queryKey:['menu-categories',timeRange],queryFn:()=>analyticsService.getDashboardData(timeRange)
+  },
+  {
+    queryKey:['sale-by-day',timeRange],queryFn:()=>analyticsService.getTotalRevenuByDay(timeRange)
+  },
+  {
+    queryKey:['revenu-by-item',timeRange],queryFn:()=>analyticsService.getRevenuItems(timeRange)
+  },
+  {
+    queryKey:['revenu-total',timeRange],queryFn:()=>analyticsService.getTotalRevenu(timeRange)
+  },
+])
+const {categoryData,COLORS} = useMemo(()=>getCategoryDataPipe(data),[data])
+const salesData = useMemo(()=>getSalesDataPipe(revenu),[revenu])
+const topSellingItems = useMemo(()=>getItemsRevenu(revenuItem),[revenuItem])
+console.log({data})
   const handleTimeRangeChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    setTimeRange(event.target.value as string);
+    setTimeRange(event.target.value as PriodeType );
   };
 
   return (
@@ -71,15 +124,15 @@ export default function AnalyticsDashboard() {
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, mb: 3 }}>
           <Paper elevation={3} sx={{ p: 2, flex: '1 1 200px' }}>
             <Typography variant="h6" gutterBottom>Ventes Totales</Typography>
-            <Typography variant="h4">19,550 €</Typography>
+            <Typography variant="h4">{totalRevenu?.total_revenue} DA </Typography>
           </Paper>
           <Paper elevation={3} sx={{ p: 2, flex: '1 1 200px' }}>
             <Typography variant="h6" gutterBottom>Nombre de Commandes</Typography>
-            <Typography variant="h4">825</Typography>
+            <Typography variant="h4">{totalRevenu?.total_items_sold}</Typography>
           </Paper>
           <Paper elevation={3} sx={{ p: 2, flex: '1 1 200px' }}>
             <Typography variant="h6" gutterBottom>Panier Moyen</Typography>
-            <Typography variant="h4">23.70 €</Typography>
+            <Typography variant="h4">{totalRevenu?.total_items_sold? Number((totalRevenu?.total_revenue/totalRevenu?.total_items_sold).toFixed(2)):''} DA</Typography>
           </Paper>
         </Box>
 
@@ -122,7 +175,7 @@ export default function AnalyticsDashboard() {
                     dataKey="value"
                     label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                   >
-                    {categoryData.map((_entry, index) => (
+                    {categoryData?.map((_entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
@@ -150,7 +203,7 @@ export default function AnalyticsDashboard() {
                           {item.name}
                         </TableCell>
                         <TableCell align="right">{item.quantity}</TableCell>
-                        <TableCell align="right">{item.revenue} €</TableCell>
+                        <TableCell align="right">{item.revenue} DA</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

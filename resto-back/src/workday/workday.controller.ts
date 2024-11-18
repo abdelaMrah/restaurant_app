@@ -10,8 +10,5 @@ export class WorkDayController {
     await this.workDayService.initializeWorkDay();
     return 'Initialisation du jour de travail terminée';
   }
-//   @Get('analytics')
-//   async getAnalytics(){
-//     return await this.workDayService.getStatisticsByPeriod('month');
-//   }
+
 }

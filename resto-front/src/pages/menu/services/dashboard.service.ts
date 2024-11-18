@@ -23,19 +23,7 @@ export interface CategoryMenuRespose {
         const categoryCount = await categorieService.getCategoriesCount();
         const categories = await categorieService.getGategories();
         const menu = await menuService.getMenu();
-        const categoryMenu =(await this.apiService.getInstance().get('/category/categoyMenu')).data as {
-            categoryId:number;
-            categoryName:string;
-            menuItems:{
-                id:number;
-                createdAt:string;
-                name:string;
-                price:number;
-                totalSales:number;
-                description:string;
-             }[]
-        }[]
-
+        const categoryMenu =(await this.apiService.getInstance().get<CategoryMenuRespose[]>('/category/categoyMenu')).data
         return {
             menuCount,
             categoryCount,

@@ -37,81 +37,7 @@ import dahbordCateegorySrevice, {
 } from "../services/dashboard.service";
 import {  useEffect, useMemo } from "react";
 import { stringToVividColor } from "../../../utils/utils";
- 
-// Données du menu
-
-// Données pour le graphique des catégories
-
- 
-// const COLORS = [
-//   "#0088FE",
-//   "#00C49F",
-//   "#FFBB28",
-//   "#FF8042",
-//   "#8884D8",
-//   "#82ca9d",
-//   "#ffc658",
-//   "#8dd1e1",
-// ];
-
-// const menuItems = [
-//   {
-//     id: 1,
-//     name: "Burger Classic",
-//     category: "Burgers",
-//     price: 8.99,
-//     popularity: 85,
-//   },
-//   {
-//     id: 2,
-//     name: "Pizza Margherita",
-//     category: "Pizzas",
-//     price: 10.99,
-//     popularity: 92,
-//   },
-//   {
-//     id: 3,
-//     name: "Salade César",
-//     category: "Salades",
-//     price: 7.99,
-//     popularity: 78,
-//   },
-//   {
-//     id: 4,
-//     name: "Pâtes Carbonara",
-//     category: "Pâtes",
-//     price: 9.99,
-//     popularity: 88,
-//   },
-//   {
-//     id: 5,
-//     name: "Tiramisu",
-//     category: "Desserts",
-//     price: 5.99,
-//     popularity: 95,
-//   },
-//   {
-//     id: 6,
-//     name: "Steak Frites",
-//     category: "Plats Principaux",
-//     price: 14.99,
-//     popularity: 89,
-//   },
-//   {
-//     id: 7,
-//     name: "Sushi Mix",
-//     category: "Sushis",
-//     price: 16.99,
-//     popularity: 91,
-//   },
-//   {
-//     id: 8,
-//     name: "Soupe à l'Oignon",
-//     category: "Entrées",
-//     price: 6.99,
-//     popularity: 82,
-//   },
-// ];
+  
 const getMenuPipe = (menu: Menu[] | undefined) => {
   if (menu) {
     const menuItems = menu?.map((item) => {
@@ -128,8 +54,7 @@ const getMenuPipe = (menu: Menu[] | undefined) => {
   return [];
 };
 const dashbordPipe = (data: CategoryMenuRespose[] | undefined) => {
-  console.log({ data });
-  if (data) {
+   if (data) {
     const categoryData = data?.map((categoryMenu) => {
       return {
         name: categoryMenu.categoryName,
@@ -178,18 +103,7 @@ const mostPopularPipe=(data:MostPopularInterfaceResponse[]|undefined)=>{
 export default function MenuDashboard() {
   const theme = useTheme();
 
-  // const { data: categoriesCount, isLoading: countIsLoading } = useQuery(
-  //   "categories-count",
-  //   async () => await categorieService.getCategoriesCount()
-  // );
-  // const { data: platCount, isLoading: platCoutIsLoading } = useQuery(
-  //   "lats-count",
-  //   async () => await menuService.getCategoriesCount()
-  // );
-  // const { data } = useQuery(
-  //   "dashboard-data",
-  //   async () => await dahbordCateegorySrevice.getDashboardData()
-  // );
+
   const [{data: categoriesCount, isLoading: countIsLoading },
     {data: platCount, isLoading: platCoutIsLoading },
     {data}
@@ -204,7 +118,7 @@ export default function MenuDashboard() {
     () => dashbordPipe(data?.categoryMenu),
     [data]
   );
-  // console.log({test})
+  
   console.log({ COLORS ,categoryData});
   const menuItems = useMemo(
     () => getMenuPipe(data?.menu),
